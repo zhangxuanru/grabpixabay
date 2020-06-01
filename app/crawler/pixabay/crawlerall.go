@@ -9,6 +9,7 @@ package pixabay
 import (
 	"fmt"
 	"grabpixabay/common/chrmdp"
+	"grabpixabay/config"
 
 	"github.com/sirupsen/logrus"
 
@@ -29,8 +30,13 @@ func NewCrawlerAll(req *PixRequest) *CrawlerAll {
 	}
 }
 
+//抓取所有， 根据颜色发起请求
 func (c *CrawlerAll) CrawlerAll() {
 	var err error
+	//https://pixabay.com/zh/images/search/?colors=green
+	for _, color := range config.GConf.Colors {
+		//todo 明天继续
+	}
 	reqRet := chrmdp.NewReqResult(c.PixRequest.HostUrl)
 	err = reqRet.RequestUrl(func(req *chrmdp.ReqResult) chromedp.Tasks {
 		return chromedp.Tasks{
@@ -42,7 +48,7 @@ func (c *CrawlerAll) CrawlerAll() {
 	})
 	if err != nil {
 		logrus.Error(err)
-		return
+
 	}
 
 	fmt.Printf("%+v\n\n", reqRet)
