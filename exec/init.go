@@ -23,16 +23,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var Task *distribute.Task
-
 //命令行初始化
-func InitFlag() {
-	Task = &distribute.Task{}
-	flag.StringVar(&Task.Host, "host", config.PIX_HOST, "请输入要抓取的host,目前仅支持pixabay")
-	flag.IntVar(&Task.Page, "page", 0, "请输入要抓取的页数，默认是全部抓取")
-	flag.StringVar(&Task.Type, "type", config.TYPE_ALL, "all:全站抓取 latest:获取最新,sift:获取小编精选,pic:获取图片详情")
-	flag.StringVar(&Task.PicUrl, "pic", "", "图片详情页地址")
+func InitFlag() *distribute.Task {
+	task := distribute.NewTask()
+	flag.StringVar(&task.Host, "host", config.PIX_HOST, "请输入要抓取的host,目前仅支持pixabay")
+	flag.IntVar(&task.Page, "page", 0, "请输入要抓取的页数，默认是全部抓取")
+	flag.StringVar(&task.Type, "type", config.TYPE_ALL, "all:全站抓取 latest:获取最新,sift:获取小编精选,pic:获取图片详情")
+	flag.StringVar(&task.PicUrl, "pic", "", "图片详情页地址")
 	flag.Parse()
+	return task
 }
 
 //初始化logrus
@@ -63,4 +62,9 @@ func InitLog() {
 		logrus.PanicLevel: writer,
 	}, nil)
 	logrus.AddHook(lfHook)
+}
+
+//监听信号
+func NotifySing() {
+
 }

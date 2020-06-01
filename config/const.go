@@ -17,9 +17,9 @@ const (
 
 //命令行信息
 const (
-	PIX_HOST    = "pixabay"
-	TYPE_ALL    = "all"
-	TYPE_LATEST = "latest"
-	TYPE_SIFT   = "sift"
-	TYPE_PIC    = "pic"
+	PIX_HOST    = "pixabay" //host名称
+	TYPE_ALL    = "all"     //全站抓取
+	TYPE_LATEST = "latest"  //获取最新
+	TYPE_SIFT   = "sift"    //获取小编精选
+	TYPE_PIC    = "pic"     //获取图片
 )

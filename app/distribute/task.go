@@ -8,6 +8,7 @@ package distribute
 
 import (
 	"fmt"
+	"grabpixabay/app/crawler/pixabay"
 	"grabpixabay/config"
 )
 
@@ -19,14 +20,35 @@ type Task struct {
 	HostUrl   string
 	Page      int
 	StartTime int64
+	CrawEngine
+}
+
+type CrawEngine struct {
+	PxCrawler *pixabay.PixRequest
 }
 
 func NewTask() *Task {
 	return &Task{}
 }
 
-func RunTask(task *Task) {
-	fmt.Println(config.GConf)
-	fmt.Printf("%+v", task)
+//运行抓取任务
+func (t *Task) RunTask() {
+	fmt.Println(t.HostUrl, "开始抓取......")
+	t.crawEngine()
+	fmt.Println(t.HostUrl, "抓取结束......")
+}
 
+//判断任务是走哪个引擎，方便以后扩展抓取其它的网站
+func (t *Task) crawEngine() {
+	if t.Host == config.PIX_HOST {
+		t.PxCrawler = &pixabay.PixRequest{
+			HostUrl: t.HostUrl,
+			PicUrl:  t.PicUrl,
+			Page:    t.Page,
+		}
+		t.PxCrawler.CrawPixAbAyEngineType(t.Type)
+		return
+	}
+	fmt.Printf("当前仅支持:%s的抓取", config.PIX_HOST)
+	return
 }

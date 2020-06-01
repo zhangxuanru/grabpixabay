@@ -7,29 +7,23 @@
 package exec
 
 import (
-	"fmt"
-	"grabpixabay/app/distribute"
 	"grabpixabay/common/verify"
-	"grabpixabay/config"
 
 	"github.com/sirupsen/logrus"
 )
 
-func Init() {
-	InitFlag()
+func init() {
 	InitLog()
 }
 
 func Run() {
-	fmt.Printf("%v\n\n", config.FULL_NAME)
-	Init()
-	config.AppConfig()
-	if err := verify.CheckTask(Task); err != nil {
+	task := InitFlag()
+	if err := verify.CheckTask(task); err != nil {
 		logrus.WithFields(logrus.Fields{
-			"Host": Task.Host,
-			"Type": Task.Type,
+			"Host": task.Host,
+			"Type": task.Type,
 		}).Error(err)
 		return
 	}
-	distribute.RunTask(Task)
+	task.RunTask()
 }
