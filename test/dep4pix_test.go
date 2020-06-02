@@ -52,6 +52,7 @@ func TestPixabay(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	if err := ioutil.WriteFile("pix.png", buf, 0644); err != nil {
 		log.Fatal(err)
 	}

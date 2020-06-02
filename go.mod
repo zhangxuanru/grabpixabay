@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	github.com/EdlinOrg/prominentcolor v1.0.0
+	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/antonfisher/nested-logrus-formatter v1.1.0
 	github.com/chromedp/cdproto v0.0.0-20200424080200-0de008e41fa0
 	github.com/chromedp/chromedp v0.5.3

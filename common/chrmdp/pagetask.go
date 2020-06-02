@@ -7,6 +7,8 @@
 package chrmdp
 
 import (
+	"io/ioutil"
+
 	"github.com/chromedp/chromedp"
 	"github.com/sirupsen/logrus"
 )
@@ -15,6 +17,9 @@ import (
 //https://pixabay.com/zh/images/search/?colors=green
 func (r *ReqResult) RequestSearchPage() (err error) {
 	logrus.Infoln("开始抓取:", r.Url)
+	if isTest, err := r.callTestPage(); isTest == true {
+		return err
+	}
 	err = r.RequestUrl(func(req *ReqResult) chromedp.Tasks {
 		return chromedp.Tasks{
 			chromedp.Navigate(req.Url),
@@ -30,4 +35,15 @@ func (r *ReqResult) RequestSearchPage() (err error) {
 		logrus.Infoln("抓取失败,失败原因:", err)
 	}
 	return err
+}
+
+//请求测试文件
+func (r *ReqResult) callTestPage() (bool, error) {
+	if r.PageType == PageTypeAll {
+		byte, err := ioutil.ReadFile("test/html/search.html")
+		html := string(byte)
+		r.Html = &html
+		return true, err
+	}
+	return false, nil
 }

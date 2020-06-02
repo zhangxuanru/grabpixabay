@@ -17,30 +17,38 @@ import (
 const UA = `Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36`
 const timeOut = 30 * time.Second
 
+const (
+	PageTypeAll = "all"
+)
+
 //请求URL 返回HTML
 type ReqResult struct {
-	Html    *string
-	Url     string
-	timeOut time.Duration
-	Ua      string
+	Html     *string
+	Url      string
+	timeOut  time.Duration
+	Ua       string
+	Headless bool
+	PageType string
 }
 
 type reqFun func(req *ReqResult) chromedp.Tasks
 
-func NewReqResult(url string) *ReqResult {
+func NewReqResult(url string, pageType string) *ReqResult {
 	var html string
 	return &ReqResult{
-		Url:     url,
-		timeOut: time.Duration(timeOut),
-		Ua:      UA,
-		Html:    &html,
+		Url:      url,
+		timeOut:  time.Duration(timeOut),
+		Ua:       UA,
+		Html:     &html,
+		Headless: false,
+		PageType: pageType,
 	}
 }
 
 func (r *ReqResult) RequestUrl(f reqFun) error {
 	options := []chromedp.ExecAllocatorOption{
 		chromedp.UserAgent(r.Ua),
-		chromedp.Flag("headless", false), //以有头方式运行
+		chromedp.Flag("headless", r.Headless), //以有头方式运行
 		chromedp.Flag("disable-gpu", true),
 		chromedp.Flag("enable-automation", true),
 		chromedp.Flag("disable-extensions", true),

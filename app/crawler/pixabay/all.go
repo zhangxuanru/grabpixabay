@@ -7,9 +7,10 @@
 package pixabay
 
 import (
-	"fmt"
+	"grabpixabay/app/spider"
 	"grabpixabay/common/chrmdp"
 	"grabpixabay/config"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -33,19 +34,20 @@ func NewCrawlerAll(req *PixRequest) *CrawlerAll {
 func (c *CrawlerAll) CrawlerAll() {
 	for _, color := range config.GConf.Colors {
 		url := c.PixRequest.HostUrl + "?colors=" + color
-		reqRet := chrmdp.NewReqResult(url)
+		reqRet := chrmdp.NewReqResult(url, chrmdp.PageTypeAll)
 		if err := reqRet.RequestSearchPage(); err != nil {
 			continue
 		}
-		fmt.Printf("%+v\n", reqRet)
-		fmt.Printf("HTML:\n\n\n")
-		fmt.Println(*reqRet.Html)
-
-		logrus.Infoln("开始抓取:", reqRet.Url)
-
-		//解析HTML，发送gorotine请求
-		//fmt.Printf("%+v\n\n", reqRet)
-		//fmt.Println("Html:", *reqRet.Html)
+		query := &spider.PixSearch{
+			Html:  reqRet.Html,
+			Url:   reqRet.Url,
+			Color: color,
+		}
+		if err := query.HtmlParser(); err != nil {
+			logrus.Error(err)
+		}
+		logrus.Infoln("抓取结束:", reqRet.Url)
+		time.Sleep(1 * time.Second)
 		return
 	}
 }

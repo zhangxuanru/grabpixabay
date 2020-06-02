@@ -45,13 +45,13 @@ func (p *PixRequest) RunAll() {
 }
 
 func (p *PixRequest) RunLatest() {
-	fmt.Println("latest....")
+	fmt.Println("latest 待开发....")
 }
 
 func (p *PixRequest) RunSift() {
-	fmt.Println("sift....")
+	fmt.Println("sift 待开发....")
 }
 
 func (p *PixRequest) RunPic() {
-	fmt.Println("pic....")
+	fmt.Println("pic 待开发....")
 }
