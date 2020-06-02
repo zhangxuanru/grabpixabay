@@ -15,7 +15,7 @@ import (
 )
 
 const UA = `Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36`
-const timeOut = 20 * time.Second
+const timeOut = 30 * time.Second
 
 //请求URL 返回HTML
 type ReqResult struct {
@@ -40,8 +40,12 @@ func NewReqResult(url string) *ReqResult {
 func (r *ReqResult) RequestUrl(f reqFun) error {
 	options := []chromedp.ExecAllocatorOption{
 		chromedp.UserAgent(r.Ua),
+		chromedp.Flag("headless", false), //以有头方式运行
+		chromedp.Flag("disable-gpu", true),
+		chromedp.Flag("enable-automation", true),
+		chromedp.Flag("disable-extensions", true),
 	}
-	options = append(options, chromedp.DefaultExecAllocatorOptions[:]...)
+	options = append(chromedp.DefaultExecAllocatorOptions[:], options...)
 	ctx := context.Background()
 	c, cc := chromedp.NewExecAllocator(ctx, options...)
 	defer cc()

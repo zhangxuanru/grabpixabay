@@ -12,8 +12,6 @@ import (
 	"grabpixabay/config"
 
 	"github.com/sirupsen/logrus"
-
-	"github.com/chromedp/chromedp"
 )
 
 //执行全站图片所有抓取
@@ -31,26 +29,23 @@ func NewCrawlerAll(req *PixRequest) *CrawlerAll {
 }
 
 //抓取所有， 根据颜色发起请求
+//https://pixabay.com/zh/images/search/?colors=green
 func (c *CrawlerAll) CrawlerAll() {
-	var err error
-	//https://pixabay.com/zh/images/search/?colors=green
 	for _, color := range config.GConf.Colors {
-		//todo 明天继续
-	}
-	reqRet := chrmdp.NewReqResult(c.PixRequest.HostUrl)
-	err = reqRet.RequestUrl(func(req *chrmdp.ReqResult) chromedp.Tasks {
-		return chromedp.Tasks{
-			chromedp.Navigate(req.Url),
-			// 等待右下角图标加载完成
-			chromedp.WaitVisible(`#toTop`, chromedp.ByQuery),
-			chromedp.OuterHTML(`body`, req.Html, chromedp.ByQuery),
+		url := c.PixRequest.HostUrl + "?colors=" + color
+		reqRet := chrmdp.NewReqResult(url)
+		if err := reqRet.RequestSearchPage(); err != nil {
+			continue
 		}
-	})
-	if err != nil {
-		logrus.Error(err)
+		fmt.Printf("%+v\n", reqRet)
+		fmt.Printf("HTML:\n\n\n")
+		fmt.Println(*reqRet.Html)
 
+		logrus.Infoln("开始抓取:", reqRet.Url)
+
+		//解析HTML，发送gorotine请求
+		//fmt.Printf("%+v\n\n", reqRet)
+		//fmt.Println("Html:", *reqRet.Html)
+		return
 	}
-
-	fmt.Printf("%+v\n\n", reqRet)
-	fmt.Println("Html:", *reqRet.Html)
 }
