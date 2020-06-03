@@ -7,9 +7,14 @@
 package exec
 
 import (
+	"context"
 	"flag"
+	"fmt"
 	"grabpixabay/app/distribute"
 	"grabpixabay/config"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/rifflock/lfshook"
@@ -73,6 +78,12 @@ func InitLog() {
 }
 
 //监听信号
-func NotifySing() {
-
+func NotifySing(cancel context.CancelFunc) {
+	sign := make(chan os.Signal)
+	signal.Notify(sign, syscall.SIGKILL, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGHUP, syscall.SIGINT)
+	go func() {
+		sig := <-sign
+		fmt.Println("接收到信号:", sig)
+		cancel()
+	}()
 }

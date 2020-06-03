@@ -29,6 +29,7 @@ type ReqResult struct {
 	Ua       string
 	Headless bool
 	PageType string
+	TestFile bool
 }
 
 type reqFun func(req *ReqResult) chromedp.Tasks
@@ -42,6 +43,7 @@ func NewReqResult(url string, pageType string) *ReqResult {
 		Html:     &html,
 		Headless: false,
 		PageType: pageType,
+		TestFile: true,
 	}
 }
 

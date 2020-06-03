@@ -7,6 +7,7 @@
 package pixabay
 
 import (
+	"context"
 	"fmt"
 	"grabpixabay/config"
 )
@@ -16,6 +17,8 @@ type PixRequest struct {
 	PicUrl  string
 	Html    string
 	Page    int
+	Cxt     context.Context
+	Can     context.CancelFunc
 }
 
 func NewPixRequest() *PixRequest {
@@ -41,7 +44,7 @@ func (p *PixRequest) CrawPixAbAyEngineType(crawType string) {
 
 //执行全站图片所有抓取
 func (p *PixRequest) RunAll() {
-	NewCrawlerAll(p).CrawlerAll()
+	NewCrawlerAll(p).Start()
 }
 
 func (p *PixRequest) RunLatest() {

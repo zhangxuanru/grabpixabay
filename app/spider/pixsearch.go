@@ -8,18 +8,11 @@ package spider
 
 import (
 	"errors"
-	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
-
-type PixSearch struct {
-	Html  *string
-	Url   string
-	Color string
-	Dom   *goquery.Document
-}
 
 //解析入口搜索页的HTML，
 //https://pixabay.com/zh/images/search/?colors=red
@@ -34,25 +27,54 @@ func (p *PixSearch) HtmlParser() (err error) {
 	//总数量
 	numText := p.Dom.Find("div.media_list").Find("div>h1").Text()
 	numText = strings.TrimSpace(strings.TrimRight(numText, "免费图片"))
-	fmt.Println(numText)
-
 	p.ParseHtmlImages()
-
-	//fmt.Printf("HTML:\n\n\n")
-	//fmt.Println(*reqRet.Html)
-
-	//logrus.Infoln("开始抓取:", reqRet.Url)
-
-	//解析HTML，发送gorotine请求
-	//fmt.Printf("%+v\n\n", reqRet)
-	//fmt.Println("Html:", *reqRet.Html)
 	return nil
 }
 
-//解析出图片地址与链接地址
+//解析出图片信息
 func (p *PixSearch) ParseHtmlImages() {
-	p.Dom.Find("div.search_results").Find("div.item").Each(func(i int, selection *goquery.Selection) {
-		fmt.Println(i, ">>>", selection.Text())
-		//todo 明天继续，获取图片地址
+	p.Dom.Find("div.search_results").Find("div.item").EachWithBreak(func(i int, selection *goquery.Selection) bool {
+		var (
+			exists   bool
+			srcSet   string
+			firstImg *goquery.Selection
+		)
+		imgInfo := &ImageInfo{
+			Color:    p.Color,
+			ImageSet: make(map[string]string),
+		}
+		if imgInfo.LinkUrl, exists = selection.Find("a").Eq(0).Attr("href"); exists == false {
+			return false
+		}
+		firstImg = selection.Find("img").Eq(0)
+		imgInfo.Alt, _ = firstImg.Attr("alt")
+		if imgInfo.ImgSrc, exists = firstImg.Attr("data-lazy"); exists == false {
+			imgInfo.ImgSrc, _ = firstImg.Attr("src")
+		}
+		if srcSet, exists = firstImg.Attr("srcset"); exists == false {
+			srcSet, _ = firstImg.Attr("data-lazy-srcset")
+		}
+		if srcSet != "" {
+			srcSetList := strings.Split(strings.TrimSpace(srcSet), ",")
+			for _, v := range srcSetList {
+				imgSet := strings.Split(strings.TrimSpace(v), " ")
+				imgInfo.ImageSet[imgSet[1]] = imgSet[0]
+			}
+		}
+		likeNumText := selection.Find("em").Eq(0).Text()
+		favNumText := selection.Find("em").Eq(1).Text()
+		comNumText := selection.Find("em").Eq(2).Text()
+		if likeNumText != "" {
+			imgInfo.LikeNum, _ = strconv.Atoi(strings.TrimSpace(likeNumText))
+		}
+		if favNumText != "" {
+			imgInfo.FavoriteNum, _ = strconv.Atoi(strings.TrimSpace(favNumText))
+		}
+		if comNumText != "" {
+			imgInfo.CommentsNum, _ = strconv.Atoi(strings.TrimSpace(comNumText))
+		}
+		//将图片信息发送到scheduler
+		//fmt.Printf("%+v\n\n", imgInfo)
+		return true
 	})
 }

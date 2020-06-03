@@ -17,7 +17,7 @@ import (
 //https://pixabay.com/zh/images/search/?colors=green
 func (r *ReqResult) RequestSearchPage() (err error) {
 	logrus.Infoln("开始抓取:", r.Url)
-	if isTest, err := r.callTestPage(); isTest == true {
+	if isTest, err := r.TestHtmlFile(); isTest == true {
 		return err
 	}
 	err = r.RequestUrl(func(req *ReqResult) chromedp.Tasks {
@@ -38,10 +38,13 @@ func (r *ReqResult) RequestSearchPage() (err error) {
 }
 
 //请求测试文件
-func (r *ReqResult) callTestPage() (bool, error) {
+func (r *ReqResult) TestHtmlFile() (bool, error) {
+	if r.TestFile == false {
+		return false, nil
+	}
 	if r.PageType == PageTypeAll {
-		byte, err := ioutil.ReadFile("test/html/search.html")
-		html := string(byte)
+		content, err := ioutil.ReadFile("test/html/search.html")
+		html := string(content)
 		r.Html = &html
 		return true, err
 	}

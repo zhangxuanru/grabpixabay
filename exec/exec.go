@@ -7,6 +7,7 @@
 package exec
 
 import (
+	"context"
 	"grabpixabay/common/verify"
 
 	"github.com/sirupsen/logrus"
@@ -25,5 +26,7 @@ func Run() {
 		}).Error(err)
 		return
 	}
+	task.Cxt, task.Can = context.WithCancel(context.Background())
+	NotifySing(task.Can)
 	task.RunTask()
 }

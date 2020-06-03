@@ -7,6 +7,7 @@
 package distribute
 
 import (
+	"context"
 	"fmt"
 	"grabpixabay/app/crawler/pixabay"
 	"grabpixabay/config"
@@ -20,6 +21,8 @@ type Task struct {
 	HostUrl   string
 	Page      int
 	StartTime int64
+	Cxt       context.Context
+	Can       context.CancelFunc
 	CrawEngine
 }
 
@@ -45,6 +48,8 @@ func (t *Task) crawEngine() {
 			HostUrl: t.HostUrl,
 			PicUrl:  t.PicUrl,
 			Page:    t.Page,
+			Cxt:     t.Cxt,
+			Can:     t.Can,
 		}
 		t.PxCrawler.CrawPixAbAyEngineType(t.Type)
 		return
