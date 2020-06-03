@@ -8,6 +8,7 @@ package pixabay
 
 import (
 	"fmt"
+	"grabpixabay/app/scheduler"
 	"grabpixabay/app/spider"
 	"grabpixabay/common/chrmdp"
 	"grabpixabay/config"
@@ -20,6 +21,7 @@ import (
 type CrawlerAll struct {
 	Title      string
 	PixRequest *PixRequest
+	scheduler  *scheduler.SchedulPool
 }
 
 func NewCrawlerAll(req *PixRequest) *CrawlerAll {
@@ -31,6 +33,7 @@ func NewCrawlerAll(req *PixRequest) *CrawlerAll {
 
 //入口
 func (c *CrawlerAll) Start() {
+	c.StartWorker()
 	for _, color := range config.GConf.Colors {
 		select {
 		case <-c.PixRequest.Cxt.Done():
@@ -51,9 +54,12 @@ func (c *CrawlerAll) CrawlerColorPage(color string) (err error) {
 		return
 	}
 	query := &spider.PixSearch{
-		Html:  reqRet.Html,
-		Url:   reqRet.Url,
-		Color: color,
+		Html:      reqRet.Html,
+		Url:       reqRet.Url,
+		Color:     color,
+		Ctx:       c.PixRequest.Cxt,
+		Can:       c.PixRequest.Can,
+		Scheduler: c.scheduler,
 	}
 	if err = query.HtmlParser(); err != nil {
 		logrus.Error(err)
@@ -61,4 +67,13 @@ func (c *CrawlerAll) CrawlerColorPage(color string) (err error) {
 	}
 	logrus.Infoln("抓取结束:", reqRet.Url)
 	return nil
+}
+
+//启动worker
+func (c *CrawlerAll) StartWorker() {
+	worker := scheduler.NewConcurrent(config.GConf.WorkerCount)
+	worker.Ctx = c.PixRequest.Cxt
+	worker.Cancel = c.PixRequest.Can
+	worker.Run()
+	c.scheduler = worker
 }

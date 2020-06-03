@@ -9,9 +9,10 @@ package config
 var GConf *Config
 
 type Config struct {
-	HostMap map[string]string
-	TypeMap map[string]string
-	Colors  []string
+	HostMap     map[string]string
+	TypeMap     map[string]string
+	Colors      []string
+	WorkerCount int
 }
 
 func AppConfig() *Config {
@@ -25,7 +26,8 @@ func AppConfig() *Config {
 		HostMap: map[string]string{
 			PIX_HOST: "https://pixabay.com/zh/images/search/",
 		},
-		Colors: []string{"red", "orange", "yellow", "green", "turquoise", "blue", "lilac", "pink", "white", "gray", "black", "brown"},
+		Colors:      []string{"red", "orange", "yellow", "green", "turquoise", "blue", "lilac", "pink", "white", "gray", "black", "brown"},
+		WorkerCount: 100,
 	}
 	return GConf
 }

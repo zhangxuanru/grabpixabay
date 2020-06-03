@@ -8,6 +8,7 @@ package spider
 
 import (
 	"errors"
+	"grabpixabay/app/scheduler"
 	"strconv"
 	"strings"
 
@@ -24,9 +25,7 @@ func (p *PixSearch) HtmlParser() (err error) {
 	if p.Dom, err = goquery.NewDocumentFromReader(strings.NewReader(body)); err != nil {
 		return err
 	}
-	//总数量
-	numText := p.Dom.Find("div.media_list").Find("div>h1").Text()
-	numText = strings.TrimSpace(strings.TrimRight(numText, "免费图片"))
+	p.ParseImagesCount()
 	p.ParseHtmlImages()
 	return nil
 }
@@ -39,7 +38,7 @@ func (p *PixSearch) ParseHtmlImages() {
 			srcSet   string
 			firstImg *goquery.Selection
 		)
-		imgInfo := &ImageInfo{
+		imgInfo := &scheduler.ImageInfo{
 			Color:    p.Color,
 			ImageSet: make(map[string]string),
 		}
@@ -74,7 +73,21 @@ func (p *PixSearch) ParseHtmlImages() {
 			imgInfo.CommentsNum, _ = strconv.Atoi(strings.TrimSpace(comNumText))
 		}
 		//将图片信息发送到scheduler
-		//fmt.Printf("%+v\n\n", imgInfo)
+		p.Scheduler.SubmitImage(imgInfo)
 		return true
 	})
+}
+
+//根据颜色 获取图片总数 总数量
+func (p *PixSearch) ParseImagesCount() {
+	numText := p.Dom.Find("div.media_list").Find("div>h1").Text()
+	numText = strings.TrimSpace(strings.TrimRight(numText, "免费图片"))
+	if numText != "" {
+		count, _ := strconv.Atoi(numText)
+		color := &scheduler.ImgColor{
+			Color: p.Color,
+			Count: count,
+		}
+		p.Scheduler.SubmitColor(color)
+	}
 }
