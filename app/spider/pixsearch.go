@@ -127,7 +127,7 @@ func (p *PixSearch) ParseHtmlPage() int {
 	//测试环境下，临时返回页数
 	if config.SYSLEVEL == config.DEBUG_LEVEL && currPage < countPage {
 		nextPage := (currPage + 1 + rand.Intn(10)) * 5
-		if nextPage > 20 {
+		if nextPage > 25 {
 			return 0
 		}
 		return nextPage

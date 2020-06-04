@@ -27,8 +27,10 @@ type ImageTag struct {
 }
 
 type Item struct {
-	inImageChan chan *ImageInfo //
-	inColorChan chan *ImgColor
+	//inImageChan   chan *ImageInfo //
+	inColorChan   chan *ImgColor
+	imageListChan chan *ImageInfo //图片信息chan
+	downloadChan  chan *ImageInfo //执行下载图片
 }
 
 type Concurrent struct {
