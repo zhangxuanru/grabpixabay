@@ -1,0 +1,92 @@
+pixabay  Mysql设计：
+     
+pixabay_user: 抓取的用户资料表
+    id          : 自增ID
+    uid,        : px站的 作者UID 【如果是本站注册，则把ID值写一份到uid字段中】
+    nickname    : 作者昵称【英文】
+    nickname_zh : 作者昵称中文
+    source_addr : pixabay 站的个人中心页面地址 【https://pixabay.com/zh/users/publicdomainpictures-14/】
+    user_name   : 登录用户名
+    passwd      : 登录密码
+    country     : 作者国籍
+    age         : 年龄
+    reg_date    : 注册时间
+    head_portrait : 头像地址
+    add_time      : 添加时间
+    update_time   : 修改时间
+
+
+pixabay_user_count : 用户数据统计表
+     id            : 自增ID
+     uid           : 用户UID    【与pixabay_user表uid字段对应】
+     sift          : 小编精选数
+     pic_num       : 图片总数
+     downloads     : 下载量
+     like_num      : 喜欢数
+     collect_num   : 收藏数
+     comment_num   : 评论数
+     follower_num  : 关注者数
+     add_time      : 添加时间
+     update_time   : 修改时间
+
+
+pixabay_tag :标签表
+     id       :  自增ID
+     tag_name :  标签名
+     add_time :  添加时间
+   
+
+
+pixabay_category ：分类表
+     id       :  自增ID
+     category_name : 分类名称
+     add_time :  添加时间
+
+  
+pixabay_picture ：图片主表
+      id             : 自增ID
+      uid            : 用户UID【与pixabay_user表uid字段对应】
+      pix_pic_id     : pixabay站的图片ID
+      agg_type       : 聚合类型【热门，最新，小编精选，即将到来的】
+      pic_crcid      : 图片的crcid值（一个图片对应有4张不同宽高的图片， 这里对应图片属性表的crcid） 
+      web_address    : 网页图片源地址
+      category_id    : 分类ID（与pixabay_category表id相对应）   
+      image_format   : 图片格式(JPG,PNG)
+      theme_colors   : 主题颜色
+      image_direction : 图像方向
+      image_type      : 图片类型【照片，矢量图，插画】
+      resolution    : 解析度	
+      view          : 视图	
+      downloads     : 下载量	 
+      like_num      : 喜欢数
+      collect_num   : 收藏数
+      is_handpick   : 是否精选
+      upload_time   : 上传时间
+      add_time      : 添加时间
+
+
+
+pixabay_picture_tag : 图片标签表
+      id            : 自增ID
+      pic_id        : 图片id
+      tag_id        : 标签ID(与pixabay_tag表id相对应)
+      add_time      : 添加时间
+      update_time   : 修改时间
+
+  
+pixabay_picture_attr:图片属性表
+     id            : 自增ID
+     pic_id        : 图片id
+     is_surface_plot  : 是否是封面图 
+     pic_root_address    : 图片本地地址 【/home/images/2020/5/22/aa.jpg】
+     file_name           : 文件名
+     is_qiniu            : 是否上传到七牛
+     pic_source_addr     : 图片源文件地址 
+     width               : 宽度
+     height              : 高度
+     add_time            : 添加时间
+
+
+     
+
+

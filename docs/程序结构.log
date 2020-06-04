@@ -1,0 +1,51 @@
+configs
+    conf.ini
+
+init
+    flag.go
+
+
+app
+   distribute     ->任务仓库,接收要执行的任务，
+
+   crawler        -> 执行chromedep页面请求，返回HTML，
+
+   spider         ->  解析HTML，解析完之后交给Scheduler
+
+   scheduler     ->  Scheduler接收要下载的请求，会将其交给 Downloader 进行下载,下载之后会交给Pipeline
+
+   downloader    -> 执行下载，下载完了之后交给spider，
+
+   Pipeline     -> 入库的具体数据过滤，处理
+   
+   distribute-->crawler-->spider-->scheduler-->Downloader-->Pipeline
+
+cmd
+     
+
+common
+    
+   
+logs
+
+
+
+
+
+
+
+
+
+launch
+
+storage
+
+module
+
+logs 
+
+tools
+
+examples
+
+main.go
