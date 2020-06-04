@@ -23,3 +23,9 @@ const (
 	TYPE_SIFT   = "sift"    //获取小编精选
 	TYPE_PIC    = "pic"     //获取图片
 )
+
+const (
+	DEBUG_LEVEL   = "DEBUG"
+	PRODUCT_LEVEL = "PRODUCT"
+	SYSLEVEL      = DEBUG_LEVEL
+)

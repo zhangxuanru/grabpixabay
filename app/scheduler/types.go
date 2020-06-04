@@ -6,6 +6,8 @@
 */
 package scheduler
 
+import "context"
+
 //图片结构体
 type ImageInfo struct {
 	LinkUrl     string            //图片链接地址
@@ -22,4 +24,26 @@ type ImageInfo struct {
 type ImageTag struct {
 	Title   string //标签标题
 	LinkUrl string //标签链接地址
+}
+
+type Item struct {
+	inImageChan  chan *ImageInfo //
+	outImageChan chan ImageInfo
+	inColorChan  chan *ImgColor
+	outColorChan chan ImgColor
+}
+
+type Concurrent struct {
+	workerCount int
+	WorkActive  bool
+	Ctx         context.Context
+	Cancel      context.CancelFunc
+	Item
+}
+
+type ImgColor struct {
+	Color      string //颜色
+	Count      int    //源站上的图片总数
+	SuccessNum int    //下载成功的数
+	FailNum    int    //下载失败的数
 }

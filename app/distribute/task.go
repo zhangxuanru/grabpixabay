@@ -51,7 +51,7 @@ func (t *Task) crawEngine() {
 			Cxt:     t.Cxt,
 			Can:     t.Can,
 		}
-		t.PxCrawler.CrawPixAbAyEngineType(t.Type)
+		t.PxCrawler.CrawPixType(t.Type)
 		return
 	}
 	fmt.Printf("当前仅支持:%s的抓取", config.PIX_HOST)

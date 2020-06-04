@@ -7,26 +7,17 @@
 package pixabay
 
 import (
-	"context"
 	"fmt"
+	"grabpixabay/app/scheduler"
 	"grabpixabay/config"
 )
-
-type PixRequest struct {
-	HostUrl string
-	PicUrl  string
-	Html    string
-	Page    int
-	Cxt     context.Context
-	Can     context.CancelFunc
-}
 
 func NewPixRequest() *PixRequest {
 	return &PixRequest{}
 }
 
 //判断抓取的类型
-func (p *PixRequest) CrawPixAbAyEngineType(crawType string) {
+func (p *PixRequest) CrawPixType(crawType string) {
 	switch crawType {
 	case config.TYPE_ALL:
 		p.RunAll()
@@ -44,6 +35,7 @@ func (p *PixRequest) CrawPixAbAyEngineType(crawType string) {
 
 //执行全站图片所有抓取
 func (p *PixRequest) RunAll() {
+	p.StartWorker()
 	NewCrawlerAll(p).Start()
 }
 
@@ -57,4 +49,13 @@ func (p *PixRequest) RunSift() {
 
 func (p *PixRequest) RunPic() {
 	fmt.Println("pic 待开发....")
+}
+
+//启动调度器
+func (p *PixRequest) StartWorker() {
+	schedule := scheduler.NewConcurrent(config.GConf.WorkerCount)
+	schedule.Ctx = p.Cxt
+	schedule.Cancel = p.Can
+	schedule.Run()
+	p.SchPool = schedule
 }

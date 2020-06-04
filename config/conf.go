@@ -12,7 +12,7 @@ type Config struct {
 	HostMap     map[string]string
 	TypeMap     map[string]string
 	Colors      []string
-	WorkerCount int
+	WorkerCount int //同时开几个worker处理抓取信息
 }
 
 func AppConfig() *Config {

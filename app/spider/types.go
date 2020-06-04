@@ -21,5 +21,5 @@ type PixSearch struct {
 	Dom       *goquery.Document
 	Ctx       context.Context
 	Can       context.CancelFunc
-	Scheduler *scheduler.SchedulPool
+	Scheduler scheduler.SchedulingPool //调度器
 }

@@ -8,7 +8,6 @@ package pixabay
 
 import (
 	"fmt"
-	"grabpixabay/app/scheduler"
 	"grabpixabay/app/spider"
 	"grabpixabay/common/chrmdp"
 	"grabpixabay/config"
@@ -18,62 +17,81 @@ import (
 
 //执行全站图片所有抓取
 //https://pixabay.com/zh/images/search/
-type CrawlerAll struct {
-	Title      string
-	PixRequest *PixRequest
-	scheduler  *scheduler.SchedulPool
-}
-
 func NewCrawlerAll(req *PixRequest) *CrawlerAll {
 	return &CrawlerAll{
 		Title:      "全站抓取",
 		PixRequest: req,
+		VisitUrl:   make(map[string]struct{}),
 	}
 }
 
 //入口
 func (c *CrawlerAll) Start() {
-	c.StartWorker()
 	for _, color := range config.GConf.Colors {
 		select {
 		case <-c.PixRequest.Cxt.Done():
 			fmt.Println("终止请求.....")
 			return
 		default:
-			_ = c.CrawlerColorPage(color)
+			_ = c.CrawlerColorPage(color, 1)
 		}
 	}
 }
 
 //抓取所有， 根据颜色发起请求
 //https://pixabay.com/zh/images/search/?colors=green
-func (c *CrawlerAll) CrawlerColorPage(color string) (err error) {
-	url := c.PixRequest.HostUrl + "?colors=" + color
-	reqRet := chrmdp.NewReqResult(url, chrmdp.PageTypeAll)
-	if err = reqRet.RequestSearchPage(); err != nil {
-		return
+func (c *CrawlerAll) CrawlerColorPage(color string, pag int) (err error) {
+	var (
+		nextPage int
+		url      string
+		reqResp  *chrmdp.ReqResult
+	)
+	url = c.PixRequest.HostUrl + "?colors=" + color
+	if pag > 1 {
+		url += "&pagi=" + fmt.Sprintf("%d", pag)
+	}
+	reqResp = chrmdp.NewReqResult(url, chrmdp.PageTypeAll)
+	if c.isDuplicate(url) == false {
+		if err = reqResp.RequestSearchPage(); err != nil {
+			return
+		}
+	} else {
+		logrus.Infoln(reqResp.Url, "重复请求....")
 	}
 	query := &spider.PixSearch{
-		Html:      reqRet.Html,
-		Url:       reqRet.Url,
+		Html:      reqResp.Html,
+		Url:       reqResp.Url,
 		Color:     color,
 		Ctx:       c.PixRequest.Cxt,
 		Can:       c.PixRequest.Can,
-		Scheduler: c.scheduler,
+		Scheduler: c.PixRequest.SchPool,
 	}
-	if err = query.HtmlParser(); err != nil {
+	if err, nextPage = query.HtmlParser(); err != nil {
+		if c.CurrPage > 0 {
+			nextPage = c.CurrPage + 1
+		}
 		logrus.Error(err)
+	}
+	if nextPage < 1 {
 		return
 	}
-	logrus.Infoln("抓取结束:", reqRet.Url)
+	if c.PixRequest.Page > 0 && nextPage <= c.PixRequest.Page && nextPage > 0 {
+		c.CurrPage = nextPage
+		c.CrawlerColorPage(query.Color, nextPage)
+	}
+	if nextPage > 0 && c.PixRequest.Page == 0 {
+		c.CurrPage = nextPage
+		c.CrawlerColorPage(query.Color, nextPage)
+	}
+	logrus.Infoln("抓取结束:", query.Url)
 	return nil
 }
 
-//启动worker
-func (c *CrawlerAll) StartWorker() {
-	worker := scheduler.NewConcurrent(config.GConf.WorkerCount)
-	worker.Ctx = c.PixRequest.Cxt
-	worker.Cancel = c.PixRequest.Can
-	worker.Run()
-	c.scheduler = worker
+//判断是否访问过
+func (c *CrawlerAll) isDuplicate(url string) bool {
+	if _, ok := c.VisitUrl[url]; ok {
+		return true
+	}
+	c.VisitUrl[url] = struct{}{}
+	return false
 }

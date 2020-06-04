@@ -10,17 +10,22 @@ package scheduler
 import (
 	"fmt"
 	"sync"
-	"time"
 )
 
 var Scheduler *Concurrent
 var once sync.Once
 
+//调度器接口
+type SchedulingPool interface {
+	SubmitImage(*ImageInfo)
+	SubmitColor(*ImgColor)
+}
+
 func NewConcurrent(workCount int) *Concurrent {
 	once.Do(func() {
 		Scheduler = &Concurrent{
 			workerCount: workCount,
-			Work: Work{
+			Item: Item{
 				inImageChan: make(chan *ImageInfo),
 				inColorChan: make(chan *ImgColor),
 			},
@@ -45,15 +50,12 @@ func (c *Concurrent) createWorker(i int) {
 			select {
 			case image := <-c.inImageChan:
 				fmt.Println("go image:", i, ">>", image)
-				time.Sleep(2 * time.Second)
 			case color := <-c.inColorChan:
 				fmt.Println("go color:", i, ">>", color)
-				time.Sleep(1 * time.Second)
 			case <-c.Ctx.Done():
 				fmt.Println("Worker", i, "终止请求.....")
 				return
 			}
-
 		}
 	}()
 }

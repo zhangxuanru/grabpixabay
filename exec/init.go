@@ -31,7 +31,7 @@ import (
 func InitFlag() *distribute.Task {
 	task := distribute.NewTask()
 	flag.StringVar(&task.Host, "host", config.PIX_HOST, "请输入要抓取的host,目前仅支持pixabay")
-	flag.IntVar(&task.Page, "page", 0, "请输入要抓取的页数，默认是全部抓取")
+	flag.IntVar(&task.Page, "page", 70, "请输入要抓取的页数，默认是全部抓取")
 	flag.StringVar(&task.Type, "type", config.TYPE_ALL, "all:全站抓取 latest:获取最新,sift:获取小编精选,pic:获取图片详情")
 	flag.StringVar(&task.PicUrl, "pic", "", "图片详情页地址")
 	flag.Parse()
