@@ -38,7 +38,7 @@ func (c *Concurrent) Run() {
 	if c.WorkActive == true {
 		return
 	}
-	for i := 0; i < c.workerCount; i++ {
+	for i := 0; i <= c.workerCount; i++ {
 		c.createWorker(i)
 	}
 	c.WorkActive = true
@@ -49,6 +49,9 @@ func (c *Concurrent) createWorker(i int) {
 		for {
 			select {
 			case image := <-c.inImageChan:
+				//下载图片
+				//上传七牛
+				//保存数据库
 				fmt.Println("go image:", i, ">>", image)
 			case color := <-c.inColorChan:
 				fmt.Println("go color:", i, ">>", color)

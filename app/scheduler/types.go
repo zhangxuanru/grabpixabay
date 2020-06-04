@@ -27,15 +27,13 @@ type ImageTag struct {
 }
 
 type Item struct {
-	inImageChan  chan *ImageInfo //
-	outImageChan chan ImageInfo
-	inColorChan  chan *ImgColor
-	outColorChan chan ImgColor
+	inImageChan chan *ImageInfo //
+	inColorChan chan *ImgColor
 }
 
 type Concurrent struct {
 	workerCount int
-	WorkActive  bool
+	WorkActive  bool //worker状态，true 表示已启动
 	Ctx         context.Context
 	Cancel      context.CancelFunc
 	Item

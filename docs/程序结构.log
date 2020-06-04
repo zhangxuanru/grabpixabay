@@ -14,7 +14,7 @@ app
 
    scheduler     ->  Scheduler接收要下载的请求，会将其交给 Downloader 进行下载,下载之后会交给Pipeline
 
-   downloader    -> 执行下载，下载完了之后交给spider，
+   downloader    -> 执行下载，下载完了之后交给Pipeline，
 
    Pipeline     -> 入库的具体数据过滤，处理
    
