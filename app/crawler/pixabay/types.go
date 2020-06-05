@@ -13,13 +13,14 @@ import (
 
 //发起抓取请求的结构体
 type PixRequest struct {
-	HostUrl string
-	PicUrl  string
-	Html    string
-	Page    int
-	Cxt     context.Context
-	Can     context.CancelFunc
-	SchPool scheduler.SchedulingPool
+	HostUrl    string //首页地址
+	HostDomain string //域名
+	PicUrl     string
+	Html       string
+	Page       int
+	Cxt        context.Context
+	Can        context.CancelFunc
+	SchPool    scheduler.SchedulingPool
 }
 
 //全部抓取结构体

@@ -7,22 +7,23 @@
 package pixabay
 
 import (
-	"context"
 	"fmt"
 	"grabpixabay/app/storage"
 	"grabpixabay/config"
+	"time"
 )
 
 type worker struct {
 	imageChan     chan *storage.ImageInfo
 	imagePageList chan *storage.ImageInfo
-	Ctx           context.Context
+	PixRequest    *PixRequest
 }
 
-func NewWorker() *worker {
+func NewWorker(pix *PixRequest) *worker {
 	return &worker{
 		imageChan:     make(chan *storage.ImageInfo),
 		imagePageList: make(chan *storage.ImageInfo, config.GConf.MaxImageListSize),
+		PixRequest:    pix,
 	}
 }
 
@@ -38,6 +39,7 @@ func (w *worker) StartWorker() {
 }
 
 func (w *worker) SubmitImage(image *storage.ImageInfo) {
+	time.Sleep(5 * time.Second)
 	w.imageChan <- image
 }
 
@@ -53,8 +55,9 @@ func (w *worker) createPageWorker(i int) {
 			select {
 			case image := <-w.imageChan:
 				fmt.Println("image detail:", i, ">>", image)
-				NewCrawlerAll(nil).CrawlerImageDetail(image)
-			case <-w.Ctx.Done():
+				fmt.Println("count image:", len(w.imagePageList))
+				NewCrawlerAll(w.PixRequest).CrawlerImageDetail(image)
+			case <-w.PixRequest.Cxt.Done():
 				fmt.Println("image Detail Worker", i, "终止请求.....")
 				return
 			}

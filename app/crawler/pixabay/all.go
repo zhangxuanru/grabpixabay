@@ -29,8 +29,7 @@ func NewCrawlerAll(req *PixRequest) *CrawlerAll {
 //入口
 func (c *CrawlerAll) Start() {
 	//启动抓取图片详情页的worker
-	c.Worker = NewWorker()
-	c.Worker.Ctx = c.PixRequest.Cxt
+	c.Worker = NewWorker(c.PixRequest)
 	c.Worker.StartWorker()
 	for _, color := range config.GConf.Colors {
 		select {
@@ -58,9 +57,7 @@ func (c *CrawlerAll) CrawlerColorPage(color string, pag int) (err error) {
 	}
 	reqResp = chrmdp.NewReqResult(url, chrmdp.PageTypeAll)
 	if c.isDuplicate(url) == false {
-		if err = reqResp.RequestSearchPage(); err != nil {
-			return
-		}
+		_ = reqResp.RequestSearchPage()
 	} else {
 		logrus.Infoln(reqResp.Url, "重复请求....")
 	}
@@ -100,7 +97,22 @@ func (c *CrawlerAll) CrawlerColorPage(color string, pag int) (err error) {
 
 //抓取图片详情页信息
 func (c *CrawlerAll) CrawlerImageDetail(image *storage.ImageInfo) {
-
+	var (
+		url     string
+		reqResp *chrmdp.ReqResult
+		err     error
+	)
+	url = c.PixRequest.HostDomain + image.LinkUrl
+	reqResp = chrmdp.NewReqResult(url, chrmdp.PAGEPICDETAIL)
+	if c.isDuplicate(url) == false {
+		if err = reqResp.RequestPicDetailPage(); err != nil {
+			return
+		}
+	} else {
+		logrus.Infoln(reqResp.Url, "重复请求....")
+		return
+	}
+	return
 }
 
 //判断是否访问过

@@ -45,11 +45,12 @@ func (t *Task) RunTask() {
 func (t *Task) crawEngine() {
 	if t.Host == config.PIX_HOST {
 		t.PxCrawler = &pixabay.PixRequest{
-			HostUrl: t.HostUrl,
-			PicUrl:  t.PicUrl,
-			Page:    t.Page,
-			Cxt:     t.Cxt,
-			Can:     t.Can,
+			HostUrl:    t.HostUrl,
+			HostDomain: config.PIX_HOST_DOMAIN,
+			PicUrl:     t.PicUrl,
+			Page:       t.Page,
+			Cxt:        t.Cxt,
+			Can:        t.Can,
 		}
 		t.PxCrawler.CrawPixType(t.Type)
 		return

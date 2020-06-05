@@ -8,6 +8,7 @@ package exec
 
 import (
 	"context"
+	"fmt"
 	"grabpixabay/common/verify"
 
 	"github.com/sirupsen/logrus"
@@ -27,6 +28,10 @@ func Run() {
 		return
 	}
 	task.Cxt, task.Can = context.WithCancel(context.Background())
-	NotifySing(task.Can)
+	sign := notifySign()
 	task.RunTask()
+
+	sig := <-sign
+	fmt.Println("接收到信号:", sig)
+	task.Can()
 }

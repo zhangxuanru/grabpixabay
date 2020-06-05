@@ -18,7 +18,8 @@ const UA = `Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, 
 const timeOut = 30 * time.Second
 
 const (
-	PageTypeAll = "all"
+	PageTypeAll   = "all"
+	PAGEPICDETAIL = "pic_detail"
 )
 
 //请求URL 返回HTML

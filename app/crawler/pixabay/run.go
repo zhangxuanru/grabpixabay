@@ -35,7 +35,7 @@ func (p *PixRequest) CrawPixType(crawType string) {
 
 //执行全站图片所有抓取
 func (p *PixRequest) RunAll() {
-	p.StartWorker()
+	p.StartSchedulerWorker()
 	NewCrawlerAll(p).Start()
 }
 
@@ -52,8 +52,8 @@ func (p *PixRequest) RunPic() {
 }
 
 //启动调度器
-func (p *PixRequest) StartWorker() {
-	//启动下载图片的worker
+//启动下载图片的worker
+func (p *PixRequest) StartSchedulerWorker() {
 	schedule := scheduler.NewConcurrent(config.GConf.WorkerCount)
 	schedule.Ctx = p.Cxt
 	schedule.Cancel = p.Can
