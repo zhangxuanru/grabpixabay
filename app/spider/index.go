@@ -8,7 +8,7 @@ package spider
 
 import (
 	"errors"
-	"grabpixabay/app/scheduler"
+	"grabpixabay/app/storage"
 	"grabpixabay/config"
 	"math/rand"
 	"strconv"
@@ -19,29 +19,31 @@ import (
 
 //解析入口搜索页的HTML，
 //https://pixabay.com/zh/images/search/?colors=red
-func (p *PixSearch) HtmlParser() (err error, nextPage int) {
+func (p *PixSearch) HtmlParser() (err error, nextPage int, imageList []*storage.ImageInfo) {
+	imageList = make([]*storage.ImageInfo, 0)
 	if *p.Html == "" {
-		return errors.New("body 为空"), 0
+		return errors.New("body 为空"), 0, imageList
 	}
 	body := *p.Html
 	if p.Dom, err = goquery.NewDocumentFromReader(strings.NewReader(body)); err != nil {
-		return err, 0
+		return err, 0, imageList
 	}
 	p.ParseImagesCount()
-	p.ParseHtmlImages()
+	imageList = p.ParseHtmlImages()
 	nextPage = p.ParseHtmlPage()
-	return nil, nextPage
+	return nil, nextPage, imageList
 }
 
 //解析出图片信息
-func (p *PixSearch) ParseHtmlImages() {
+func (p *PixSearch) ParseHtmlImages() []*storage.ImageInfo {
+	imageList := make([]*storage.ImageInfo, 0)
 	p.Dom.Find("div.search_results").Find("div.item").EachWithBreak(func(i int, selection *goquery.Selection) bool {
 		var (
 			exists   bool
 			srcSet   string
 			firstImg *goquery.Selection
 		)
-		imgInfo := &scheduler.ImageInfo{
+		imgInfo := &storage.ImageInfo{
 			Color:    p.Color,
 			ImageSet: make(map[string]string),
 		}
@@ -76,9 +78,11 @@ func (p *PixSearch) ParseHtmlImages() {
 			imgInfo.CommentsNum, _ = strconv.Atoi(strings.TrimSpace(comNumText))
 		}
 		//将图片信息发送到scheduler
-		p.Scheduler.SubmitImage(imgInfo)
+		//p.Scheduler.SubmitImage(imgInfo)
+		imageList = append(imageList, imgInfo)
 		return true
 	})
+	return imageList
 }
 
 //根据颜色 获取图片总数 总数量
@@ -87,7 +91,7 @@ func (p *PixSearch) ParseImagesCount() {
 	numText = strings.TrimSpace(strings.TrimRight(numText, "免费图片"))
 	if numText != "" {
 		count, _ := strconv.Atoi(numText)
-		color := &scheduler.ImgColor{
+		color := &storage.ImgColor{
 			Color: p.Color,
 			Count: count,
 		}

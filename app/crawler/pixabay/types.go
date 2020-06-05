@@ -28,4 +28,5 @@ type CrawlerAll struct {
 	PixRequest *PixRequest
 	CurrPage   int
 	VisitUrl   map[string]struct{} //记录访问过的URL，避免重复访问
+	Worker     *worker
 }

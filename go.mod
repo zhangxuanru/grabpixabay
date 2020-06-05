@@ -17,7 +17,7 @@ require (
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/oliamb/cutter v0.2.2 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/qiniu/api.v7 v7.2.5+incompatible // indirect
+	github.com/qiniu/api.v7 v7.2.5+incompatible
 	github.com/qiniu/api.v7/v7 v7.5.0 // indirect
 	github.com/qiniu/x v7.0.8+incompatible // indirect
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5

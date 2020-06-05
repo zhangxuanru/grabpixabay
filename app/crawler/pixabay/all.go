@@ -9,6 +9,7 @@ package pixabay
 import (
 	"fmt"
 	"grabpixabay/app/spider"
+	"grabpixabay/app/storage"
 	"grabpixabay/common/chrmdp"
 	"grabpixabay/config"
 
@@ -27,6 +28,10 @@ func NewCrawlerAll(req *PixRequest) *CrawlerAll {
 
 //入口
 func (c *CrawlerAll) Start() {
+	//启动抓取图片详情页的worker
+	c.Worker = NewWorker()
+	c.Worker.Ctx = c.PixRequest.Cxt
+	c.Worker.StartWorker()
 	for _, color := range config.GConf.Colors {
 		select {
 		case <-c.PixRequest.Cxt.Done():
@@ -42,9 +47,10 @@ func (c *CrawlerAll) Start() {
 //https://pixabay.com/zh/images/search/?colors=green
 func (c *CrawlerAll) CrawlerColorPage(color string, pag int) (err error) {
 	var (
-		nextPage int
-		url      string
-		reqResp  *chrmdp.ReqResult
+		nextPage  int
+		url       string
+		reqResp   *chrmdp.ReqResult
+		imageList []*storage.ImageInfo
 	)
 	url = c.PixRequest.HostUrl + "?colors=" + color
 	if pag > 1 {
@@ -66,12 +72,17 @@ func (c *CrawlerAll) CrawlerColorPage(color string, pag int) (err error) {
 		Can:       c.PixRequest.Can,
 		Scheduler: c.PixRequest.SchPool,
 	}
-	if err, nextPage = query.HtmlParser(); err != nil {
+	if err, nextPage, imageList = query.HtmlParser(); err != nil {
 		if c.CurrPage > 0 {
 			nextPage = c.CurrPage + 1
 		}
 		logrus.Error(err)
 	}
+	go func() {
+		for _, image := range imageList {
+			c.Worker.AddImage(image)
+		}
+	}()
 	if nextPage < 1 {
 		return
 	}
@@ -85,6 +96,11 @@ func (c *CrawlerAll) CrawlerColorPage(color string, pag int) (err error) {
 	}
 	logrus.Infoln("抓取结束:", query.Url)
 	return nil
+}
+
+//抓取图片详情页信息
+func (c *CrawlerAll) CrawlerImageDetail(image *storage.ImageInfo) {
+
 }
 
 //判断是否访问过

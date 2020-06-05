@@ -9,19 +9,18 @@ package scheduler
 
 import (
 	"fmt"
-	"grabpixabay/common/qiniu"
+	"grabpixabay/app/storage"
+	"grabpixabay/config"
 	"sync"
 )
 
 var Scheduler *Concurrent
 var once sync.Once
 
-const ImageChanSize = 50000
-
 //调度器接口
 type SchedulingPool interface {
-	SubmitImage(*ImageInfo)
-	SubmitColor(*ImgColor)
+	SubmitImage(*storage.ImageInfo)
+	SubmitColor(*storage.ImgColor)
 }
 
 func NewConcurrent(workCount int) *Concurrent {
@@ -29,9 +28,9 @@ func NewConcurrent(workCount int) *Concurrent {
 		Scheduler = &Concurrent{
 			workerCount: workCount,
 			Item: Item{
-				inColorChan:   make(chan *ImgColor),
-				imageListChan: make(chan *ImageInfo, ImageChanSize),
-				downloadChan:  make(chan *ImageInfo),
+				inColorChan:   make(chan *storage.ImgColor),
+				imageListChan: make(chan *storage.ImageInfo, config.GConf.MaxImageListSize),
+				downloadChan:  make(chan *storage.ImageInfo),
 			},
 		}
 	})
@@ -59,16 +58,10 @@ func (c *Concurrent) createWorker(i int) {
 	go func() {
 		for {
 			select {
-			//case image := <-c.inImageChan:
-			//	//下载图片
-			//	//上传七牛
-			//	//保存数据库
-			//	fmt.Println("go image:", i, ">>", image)
 			case color := <-c.inColorChan:
 				fmt.Println("go color:", i, ">>", color)
 			case image := <-c.downloadChan:
-				fmt.Println("image:", i, image)
-				qiniu.UploadFile()
+				storage.NewStorageImage(image).Storage()
 			case <-c.Ctx.Done():
 				fmt.Println("Worker", i, "终止请求.....")
 				return
@@ -77,10 +70,10 @@ func (c *Concurrent) createWorker(i int) {
 	}()
 }
 
-func (c *Concurrent) SubmitImage(image *ImageInfo) {
+func (c *Concurrent) SubmitImage(image *storage.ImageInfo) {
 	c.imageListChan <- image
 }
 
-func (c *Concurrent) SubmitColor(color *ImgColor) {
+func (c *Concurrent) SubmitColor(color *storage.ImgColor) {
 	c.inColorChan <- color
 }

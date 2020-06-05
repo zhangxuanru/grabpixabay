@@ -53,6 +53,7 @@ func (p *PixRequest) RunPic() {
 
 //启动调度器
 func (p *PixRequest) StartWorker() {
+	//启动下载图片的worker
 	schedule := scheduler.NewConcurrent(config.GConf.WorkerCount)
 	schedule.Ctx = p.Cxt
 	schedule.Cancel = p.Can
