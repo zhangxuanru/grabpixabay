@@ -8,20 +8,14 @@ package main
 
 import (
 	"fmt"
-	"grabpixabay/config"
-	"grabpixabay/exec"
+	"grabpixabay/app"
+	"grabpixabay/configs"
 )
 
-//main -host pixabay  -type all     -page=10     全站抓取，只抓10页
-//main -host pixabay  -type latest  -page=10     获取最新  只抓10页
-//main -host pixabay  -type sift      -page=10     获取小编精选  只抓10页
-//main -host pixabay  -type pic  https://pixabay.com/zh/photos/fiber-cable-connection-network-4814456/ 获取图片
-
-func init() {
-	config.AppConfig()
-}
+//main   -type all     -page=10  -size=50  -color=all   全站抓取所有颜色图片，只抓10页,每页50条数据,
+//main   -type latest  -page=10  -size=50  -color=red   抓取最新红色的图片，只抓10页, 每页50条数据
 
 func main() {
-	fmt.Printf("%v\n\n", config.FULL_NAME)
-	exec.Run()
+	fmt.Printf("%v\n\n", configs.FULL_NAME)
+	app.Run()
 }
