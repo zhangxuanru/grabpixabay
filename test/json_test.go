@@ -1,27 +1,21 @@
 /*
-@Time : 2020/6/8 17:39
+@Time : 2020/6/9 16:23
 @Author : zxr
-@File : request
+@File : test_json
 @Software: GoLand
 */
-package api
+package test
 
 import (
-	"errors"
 	"fmt"
+	"grabpixabay/core/scheduler"
+	"testing"
 )
 
-//请求图片APi
-func (r *RequestInfo) RequestImage() (bytes []byte, err error) {
-	if r.ApiKey == "" {
-		return nil, errors.New("ApiKey is nil")
-	}
-	apiUrl := r.buildApiUrl()
-	fmt.Println("apiUrl:", apiUrl)
-
-	return []byte(`{
+func Test_Json(t *testing.T) {
+	str := []byte(`{
 		"total":1260102,
-		"totalHits":12,
+		"totalHits":500,
 		"hits":[
 	{
 		"id":5255326,
@@ -71,18 +65,10 @@ func (r *RequestInfo) RequestImage() (bytes []byte, err error) {
 			"user":"Alexas_Fotos",
 			"userImageURL":"https://cdn.pixabay.com/user/2020/05/01/11-54-53-871_250x250.png"
 		}]
-}`), nil
+}`)
 
-	//bytes, err = GetApi(apiUrl, nil)
-	//logrus.WithFields(logrus.Fields{
-	//	"apiUrl":   apiUrl,
-	//	"response": string(bytes),
-	//	"err":      err,
-	//}).Infoln("RequestImage...")
-	//return
-}
+	image, _ := scheduler.ToApiImageResp(str)
 
-//请求视频APi
-func (r *RequestInfo) RequestVideo() {
+	fmt.Printf("%+v", image)
 
 }

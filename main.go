@@ -14,7 +14,7 @@ import (
 
 //main   -type all     -page=10  -size=50  -color=all   全站抓取所有颜色图片，只抓10页,每页50条数据,
 //main   -type latest  -page=10  -size=50  -color=red   抓取最新红色的图片，只抓10页, 每页50条数据
-
+//go run main.go  -count=10  -query aa //搜索关键字为aa的图片，总共抓取10页
 func main() {
 	fmt.Printf("%v\n\n", configs.FULL_NAME)
 	app.Run()

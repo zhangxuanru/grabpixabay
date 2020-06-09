@@ -19,9 +19,7 @@ type Item struct {
 	SignChan chan os.Signal
 }
 
-type Poller interface {
-}
-
+//调度器结构体
 type Concurrent struct {
 	workerCount   int             //worker的个数
 	WorkActive    bool            //worker状态，true 表示已启动
@@ -29,7 +27,14 @@ type Concurrent struct {
 	itemVideoChan chan *ItemVideo //视频信息
 }
 
-//图片信息item
+//API请求图片接口返回信息
+type ApiImageResp struct {
+	Total     int         `json:"total"`
+	TotalHits int         `json:"totalHits"`
+	Hits      []ItemImage `json:"hits"`
+}
+
+//图片解析信息item
 type ItemImage struct {
 	ID              int    `json:"id"`
 	PageURL         string `json:"pageURL"`

@@ -15,6 +15,13 @@ const (
 )
 
 const (
-	ImageType = "image"
-	VideoType = "video"
+	ImageType    = "image"
+	VideoType    = "video"
+	All          = "all"
+	OrderPopular = "popular"
+	OrderLatest  = "latest"
+)
+
+const (
+	ApiKey = "16938088-79a55b5fdde346d72a038a2e1"
 )

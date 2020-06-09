@@ -15,6 +15,7 @@ import (
 	"grabpixabay/util"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
 	"github.com/sirupsen/logrus"
@@ -24,6 +25,8 @@ func init() {
 	initialize.Log()
 	configs.AppConfig()
 }
+
+var once *sync.Once
 
 //程序入口
 func Run() {
@@ -35,25 +38,32 @@ func Run() {
 		logrus.Error(err)
 		return
 	}
-	scheduler.NewConcurrent(configs.GConf.WorkerCount).Run()
-	reqEntry(command).Start()
+	once.Do(func() {
+		scheduler.NewConcurrent(configs.GConf.WorkerCount).Run()
+	})
+
+	entry := reqEntry(command)
+	if command.Type == configs.ImageType {
+		entry.CallImage()
+	} else {
+		entry.CallVideo()
+	}
 	//临时不执行
-	//req := reqEntry(command)
-	//req.Monitor()
+	//entry.Monitor()
 }
 
-//构建请求
+//构建item
 func reqEntry(command *initialize.CommandLine) *scheduler.Item {
 	ctx, cancel := context.WithCancel(context.Background())
 	sign := make(chan os.Signal)
 	signal.Notify(sign, syscall.SIGKILL, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGHUP, syscall.SIGINT)
-	req := &scheduler.Item{
+	item := &scheduler.Item{
 		Command:  command,
 		Ctx:      ctx,
 		Can:      cancel,
 		SignChan: sign,
 	}
-	return req
+	return item
 }
 
 //验证命令行参数
