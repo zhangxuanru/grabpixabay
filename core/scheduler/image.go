@@ -11,6 +11,7 @@ import (
 	"grabpixabay/configs"
 	"grabpixabay/core/api"
 	"math"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 )
@@ -34,10 +35,7 @@ func (i *Item) CallImageAll() {
 		if i.Command.ImgType == configs.All {
 			i.callImageType()
 		}
-		//随机生成查询字符串
-		i.CallImageQuery("")
 	}
-
 }
 
 //按默认命令行参数抓取图片
@@ -94,9 +92,13 @@ func (i *Item) callImageEditors() {
 	i.unifyRequest(reqObj)
 }
 
-//图像宽于高还是宽于高 todo
+//图像宽于高还是宽于高
 func (i *Item) callImageOrientation() {
-	fmt.Println("all...")
+	reqObj := i.getRequest()
+	for _, orientation := range configs.GConf.Orientation {
+		reqObj.Orientation = orientation
+		i.unifyRequest(reqObj)
+	}
 }
 
 //按不同的分类抓取图片
@@ -110,6 +112,7 @@ func (i *Item) callImageCategory() {
 
 //按搜索关键字抓取图片
 func (i *Item) CallImageQuery(search string) {
+	search = strings.TrimSpace(search)
 	req := &api.RequestInfo{
 		Q:      search,
 		Type:   configs.ImageType,
@@ -157,23 +160,27 @@ func (i *Item) unifyRequest(reqObj *api.RequestInfo) {
 		totalPage int //总页
 		err       error
 	)
-	if apiResp, err = i.distributeImage(reqObj); err != nil {
+	select {
+	case <-i.Ctx.Done():
+		fmt.Println("收到 done 结束信息... 进程退出")
 		return
-	}
-	totalPage = int(math.Ceil(float64(apiResp.TotalHits) / float64(i.Command.Size)))
-	for j := 2; j <= totalPage; j++ {
-		reqObj.Page = j
+	default:
 		if apiResp, err = i.distributeImage(reqObj); err != nil {
-			break
+			return
+		}
+		totalPage = int(math.Ceil(float64(apiResp.TotalHits) / float64(i.Command.Size)))
+		for j := 2; j <= totalPage; j++ {
+			reqObj.Page = j
+			if apiResp, err = i.distributeImage(reqObj); err != nil {
+				break
+			}
 		}
 	}
 }
 
 //分用的分发图片的item
 func (i *Item) distributeImage(reqObj *api.RequestInfo) (apiResp *ApiImageResp, err error) {
-	var (
-		resp []byte
-	)
+	var resp []byte
 	if resp, err = reqObj.RequestImage(); err != nil {
 		logrus.Error("RequestImage error:", err)
 		return nil, err
@@ -182,8 +189,12 @@ func (i *Item) distributeImage(reqObj *api.RequestInfo) (apiResp *ApiImageResp, 
 		logrus.Error("ToApiImageResp error:", err)
 		return nil, err
 	}
-	//分发item
-
-	//
+	if len(apiResp.Hits) == 0 {
+		return
+	}
+	i.Pool.AddWgNum(len(apiResp.Hits))
+	for _, image := range apiResp.Hits {
+		i.Pool.SubmitImageItem(image)
+	}
 	return apiResp, nil
 }

@@ -8,7 +8,8 @@ package api
 
 import (
 	"errors"
-	"fmt"
+
+	"github.com/sirupsen/logrus"
 )
 
 //请求图片APi
@@ -17,7 +18,7 @@ func (r *RequestInfo) RequestImage() (bytes []byte, err error) {
 		return nil, errors.New("ApiKey is nil")
 	}
 	apiUrl := r.buildApiUrl()
-	fmt.Println("apiUrl:", apiUrl)
+	logrus.Infoln("apiUrl:", apiUrl)
 
 	return []byte(`{
 		"total":1260102,

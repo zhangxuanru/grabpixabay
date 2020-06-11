@@ -21,6 +21,7 @@ func (i *Item) CallImage() {
 	// 如果没设置总页数，则拼凑各种查询条件再抓取更多的图片
 	//【因为一个查询最多只返回500条数据，尽可能多的抓取就先暂时拼凑各种查询条件】
 	i.CallImageAll()
+	defer i.Pool.Wait()
 	return
 }
 
@@ -50,11 +51,11 @@ func (i *Item) getRequest() *api.RequestInfo {
 //监听信号
 func (i *Item) Monitor() {
 	select {
-	case <-i.SignChan:
+	case sing := <-i.SignChan:
 		i.Can()
-		fmt.Println("end ####")
+		fmt.Println("接收到信号:", sing)
 	case <-i.Ctx.Done():
-		fmt.Println("end ctx ....")
+		fmt.Println("end ctx Done....")
 		return
 	}
 }

@@ -26,34 +26,35 @@ func init() {
 	configs.AppConfig()
 }
 
-var once *sync.Once
+var (
+	once       sync.Once
+	command    *initialize.CommandLine
+	concurrent *scheduler.Concurrent
+	err        error
+)
 
 //程序入口
 func Run() {
-	var (
-		command *initialize.CommandLine
-		err     error
-	)
 	if command, err = verifyCommand(); err != nil {
 		logrus.Error(err)
 		return
 	}
+	item := buildTask(command)
 	once.Do(func() {
-		scheduler.NewConcurrent(configs.GConf.WorkerCount).Run()
+		concurrent = scheduler.NewConcurrent(configs.GConf.WorkerCount, item.Ctx, item.Can)
+		concurrent.Run()
+		item.Pool = concurrent
 	})
-
-	entry := reqEntry(command)
 	if command.Type == configs.ImageType {
-		entry.CallImage()
+		item.CallImage()
 	} else {
-		entry.CallVideo()
+		item.CallVideo()
 	}
-	//临时不执行
-	//entry.Monitor()
+	//item.Monitor()
 }
 
 //构建item
-func reqEntry(command *initialize.CommandLine) *scheduler.Item {
+func buildTask(command *initialize.CommandLine) *scheduler.Item {
 	ctx, cancel := context.WithCancel(context.Background())
 	sign := make(chan os.Signal)
 	signal.Notify(sign, syscall.SIGKILL, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGHUP, syscall.SIGINT)

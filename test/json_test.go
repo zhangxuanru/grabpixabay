@@ -9,7 +9,9 @@ package test
 import (
 	"fmt"
 	"grabpixabay/core/scheduler"
+	"math/rand"
 	"testing"
+	"time"
 )
 
 func Test_Json(t *testing.T) {
@@ -71,4 +73,17 @@ func Test_Json(t *testing.T) {
 
 	fmt.Printf("%+v", image)
 
+}
+
+func Test_Str(t *testing.T) {
+	a := make([]rune, 100)
+	for i := range a {
+		a[i] = rune(RandInt(19968, 40869))
+	}
+	fmt.Println(string(a))
+}
+
+func RandInt(min, max int32) int32 {
+	rand.Seed(time.Now().UnixNano())
+	return min + rand.Int31n(max-min)
 }
