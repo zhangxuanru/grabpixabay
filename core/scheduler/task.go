@@ -13,7 +13,7 @@ import (
 )
 
 //请求图片API
-func (i *Item) CallImage() {
+func (i *Task) CallImage() {
 	if i.Command.CountPage > 0 {
 		i.CallImageTotalPage()
 		return
@@ -26,13 +26,13 @@ func (i *Item) CallImage() {
 }
 
 //请求视频API
-func (i *Item) CallVideo() {
+func (i *Task) CallVideo() {
 	fmt.Println("抓取视频 暂时不支持, 下期开发....")
 	return
 }
 
 //根据命令行参数构建request结构
-func (i *Item) getRequest() *api.RequestInfo {
+func (i *Task) getRequest() *api.RequestInfo {
 	request := &api.RequestInfo{
 		Type:      i.Command.Type,
 		Limit:     i.Command.Size,
@@ -49,7 +49,7 @@ func (i *Item) getRequest() *api.RequestInfo {
 }
 
 //监听信号
-func (i *Item) Monitor() {
+func (i *Task) Monitor() {
 	select {
 	case sing := <-i.SignChan:
 		i.Can()

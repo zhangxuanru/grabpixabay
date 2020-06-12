@@ -13,7 +13,7 @@ import (
 	"sync"
 )
 
-type Item struct {
+type Task struct {
 	Command  *initialize.CommandLine
 	Pool     *Concurrent
 	Ctx      context.Context

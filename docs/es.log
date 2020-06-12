@@ -1,0 +1,17 @@
+ES索引设计：
+images:
+{
+ pic_id          : 图片ID
+ theme_colors    : 主题颜色
+ image_direction : 图像方向
+ image_type      : 图片类型【照片，矢量图，插画】
+ cover_picture   : 封面图
+ pic_960         : 960的图片地址
+ tags            : 图片标签内容 
+ category_id     : 分类ID 
+ upload_time     : 上传时间
+ is_handpick     : 是否精选
+ downloads       : 下载量	 
+ like_num        : 喜欢数
+ collect_num     : 收藏数
+}

@@ -17,7 +17,7 @@ import (
 )
 
 //拼凑各种查询条件，抓取所有图片
-func (i *Item) CallImageAll() {
+func (i *Task) CallImageAll() {
 	i.callImageCmdDefault()
 	if i.Command.More == true {
 		i.callImageEditors()
@@ -39,7 +39,7 @@ func (i *Item) CallImageAll() {
 }
 
 //按默认命令行参数抓取图片
-func (i *Item) callImageCmdDefault() {
+func (i *Task) callImageCmdDefault() {
 	var (
 		reqObj *api.RequestInfo
 	)
@@ -48,7 +48,7 @@ func (i *Item) callImageCmdDefault() {
 }
 
 //按最新的排序抓取图片
-func (i *Item) callImageOrderLast() {
+func (i *Task) callImageOrderLast() {
 	var (
 		reqObj *api.RequestInfo
 	)
@@ -58,7 +58,7 @@ func (i *Item) callImageOrderLast() {
 }
 
 //按所有颜色抓取图片
-func (i *Item) callImageAllColor() {
+func (i *Task) callImageAllColor() {
 	reqObj := i.getRequest()
 	for _, color := range configs.GConf.Colors {
 		reqObj.Color = color
@@ -67,7 +67,7 @@ func (i *Item) callImageAllColor() {
 }
 
 //按所有颜色并按最新的排序 来抓取图片
-func (i *Item) callImageAllColorLast() {
+func (i *Task) callImageAllColorLast() {
 	reqObj := i.getRequest()
 	reqObj.Order = configs.OrderLatest
 	for _, color := range configs.GConf.Colors {
@@ -77,7 +77,7 @@ func (i *Item) callImageAllColorLast() {
 }
 
 //按图片类型抓取图片
-func (i *Item) callImageType() {
+func (i *Task) callImageType() {
 	reqObj := i.getRequest()
 	for _, imgType := range configs.GConf.ImageType {
 		reqObj.ImageType = imgType
@@ -86,14 +86,14 @@ func (i *Item) callImageType() {
 }
 
 //选择已获得编辑选择奖的图像
-func (i *Item) callImageEditors() {
+func (i *Task) callImageEditors() {
 	reqObj := i.getRequest()
 	reqObj.EditorsChoice = true
 	i.unifyRequest(reqObj)
 }
 
 //图像宽于高还是宽于高
-func (i *Item) callImageOrientation() {
+func (i *Task) callImageOrientation() {
 	reqObj := i.getRequest()
 	for _, orientation := range configs.GConf.Orientation {
 		reqObj.Orientation = orientation
@@ -102,7 +102,7 @@ func (i *Item) callImageOrientation() {
 }
 
 //按不同的分类抓取图片
-func (i *Item) callImageCategory() {
+func (i *Task) callImageCategory() {
 	reqObj := i.getRequest()
 	for _, category := range configs.GConf.Category {
 		reqObj.Category = category
@@ -111,7 +111,7 @@ func (i *Item) callImageCategory() {
 }
 
 //按搜索关键字抓取图片
-func (i *Item) CallImageQuery(search string) {
+func (i *Task) CallImageQuery(search string) {
 	search = strings.TrimSpace(search)
 	req := &api.RequestInfo{
 		Q:      search,
@@ -122,7 +122,7 @@ func (i *Item) CallImageQuery(search string) {
 }
 
 //如果设置了抓取总页数 按总页数抓取图片
-func (i *Item) CallImageTotalPage() {
+func (i *Task) CallImageTotalPage() {
 	var (
 		apiResp   *ApiImageResp
 		err       error
@@ -154,7 +154,7 @@ func (i *Item) CallImageTotalPage() {
 }
 
 //抓取所有图片时，统一的请求方法
-func (i *Item) unifyRequest(reqObj *api.RequestInfo) {
+func (i *Task) unifyRequest(reqObj *api.RequestInfo) {
 	var (
 		apiResp   *ApiImageResp
 		totalPage int //总页
@@ -179,7 +179,7 @@ func (i *Item) unifyRequest(reqObj *api.RequestInfo) {
 }
 
 //分用的分发图片的item
-func (i *Item) distributeImage(reqObj *api.RequestInfo) (apiResp *ApiImageResp, err error) {
+func (i *Task) distributeImage(reqObj *api.RequestInfo) (apiResp *ApiImageResp, err error) {
 	var resp []byte
 	if resp, err = reqObj.RequestImage(); err != nil {
 		logrus.Error("RequestImage error:", err)

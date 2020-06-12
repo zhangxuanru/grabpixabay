@@ -39,32 +39,32 @@ func Run() {
 		logrus.Error(err)
 		return
 	}
-	item := buildTask(command)
+	task := buildTask(command)
 	once.Do(func() {
-		concurrent = scheduler.NewConcurrent(configs.GConf.WorkerCount, item.Ctx, item.Can)
+		concurrent = scheduler.NewConcurrent(configs.GConf.WorkerCount, task.Ctx, task.Can)
 		concurrent.Run()
-		item.Pool = concurrent
+		task.Pool = concurrent
 	})
 	if command.Type == configs.ImageType {
-		item.CallImage()
+		task.CallImage()
 	} else {
-		item.CallVideo()
+		task.CallVideo()
 	}
 	//item.Monitor()
 }
 
-//构建item
-func buildTask(command *initialize.CommandLine) *scheduler.Item {
+//构建task
+func buildTask(command *initialize.CommandLine) *scheduler.Task {
 	ctx, cancel := context.WithCancel(context.Background())
 	sign := make(chan os.Signal)
 	signal.Notify(sign, syscall.SIGKILL, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGHUP, syscall.SIGINT)
-	item := &scheduler.Item{
+	task := &scheduler.Task{
 		Command:  command,
 		Ctx:      ctx,
 		Can:      cancel,
 		SignChan: sign,
 	}
-	return item
+	return task
 }
 
 //验证命令行参数

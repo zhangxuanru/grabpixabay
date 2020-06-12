@@ -9,7 +9,6 @@ package scheduler
 import (
 	"context"
 	"fmt"
-	"grabpixabay/core/storage/models"
 	"sync"
 
 	"github.com/sirupsen/logrus"
@@ -44,9 +43,7 @@ func (c *Concurrent) createWorker(i int) {
 			select {
 			case image := <-c.itemImageChan:
 				logrus.Infof("go worker %d, rev:%+v\n", i, image)
-				//test
-				models.NewUserModel()
-				//test
+
 				//下载图片
 				//写入ES
 				//写入MYSQL

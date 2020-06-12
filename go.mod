@@ -28,7 +28,7 @@ require (
 	github.com/google/pprof v0.0.0-20200604032702-163a225fb653 // indirect
 	github.com/ianlancetaylor/demangle v0.0.0-20200524003926-2c5affb30a03 // indirect
 	github.com/jehiah/go-strftime v0.0.0-20171201141054-1d33003b3869 // indirect
-	github.com/jinzhu/gorm v1.9.12 // indirect
+	github.com/jinzhu/gorm v1.9.12
 	github.com/jinzhu/now v1.1.1 // indirect
 	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/json-iterator/go v1.1.10
