@@ -22,7 +22,7 @@ func AppConfig() *Config {
 		ImageType:   []string{"photo", "illustration", "vector"},
 		Orientation: []string{"horizontal", "vertical"},
 		Category:    []string{"backgrounds", "fashion", "nature", "science", "education", "feelings", "health", "people", "religion", "places", "animals", "industry", "computer", "food", "sports", "transportation", "travel", "buildings", "business", "music"},
-		WorkerCount: 10,
+		WorkerCount: 100,
 	}
 	return GConf
 }

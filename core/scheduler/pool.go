@@ -42,11 +42,8 @@ func (c *Concurrent) createWorker(i int) {
 		for {
 			select {
 			case image := <-c.itemImageChan:
-				logrus.Infof("go worker %d, rev:%+v\n", i, image)
-
-				//下载图片
-				//写入ES
-				//写入MYSQL
+				logrus.Infof("go worker run itemImage %d\n", i)
+				newStorage().SaveImages(image)
 				c.Wg.Done()
 			case <-c.Ctx.Done():
 				fmt.Println("Worker", i, "终止请求.....")
