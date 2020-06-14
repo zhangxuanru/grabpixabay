@@ -12,24 +12,26 @@ import (
 type ImageService struct {
 	AuthorMap map[int]int
 	PicMap    map[int]int
+	UserModel *models.User
+	PicModel  *models.Picture
 }
 
 func NewImageService() *ImageService {
 	return &ImageService{
 		AuthorMap: make(map[int]int),
 		PicMap:    make(map[int]int),
+		UserModel: models.NewUser(),
+		PicModel:  models.NewPicture(),
 	}
 }
 
 //存储图片信息
 func (i *ImageService) Storage(item api.ItemImage) {
-	logrus.Printf("item %+v\n", item)
-	return
-	go func() {
-		i.SaveAuthor(&item)
-	}()
+
+	i.SaveAuthor(&item)
+
 	i.SavePicture(&item)
-	fmt.Printf("storage images:%+v\n", item)
+	//fmt.Printf("storage images:%+v\n", item)
 }
 
 //保存作者信息
@@ -38,7 +40,7 @@ func (i *ImageService) SaveAuthor(item *api.ItemImage) int {
 		logrus.Println("UID ", item.UserID, "已存在")
 		return id
 	}
-	user := models.NewUser()
+	user := &models.User{}
 	user.PxUid = int64(item.UserID)
 	user.NickName = item.User
 	user.UserType = models.UserPx
@@ -64,7 +66,7 @@ func (i *ImageService) SavePicture(item *api.ItemImage) {
 		logrus.Println("PID ", item.ID, "已存在")
 		return
 	}
-	pic := models.NewPicture()
+	pic := &models.Picture{}
 	uid := 0
 	if uid = i.GetUidByAuthorId(item.UserID); uid == 0 {
 		uid = i.SaveAuthor(item)
@@ -82,12 +84,18 @@ func (i *ImageService) SavePicture(item *api.ItemImage) {
 	pic.CommentsNum = uint(item.Comments)
 	pic.AddTime = time.Now()
 	pic.UpdateTime = time.Now()
+	pic.State = 1
+
+	fmt.Printf("test PIC :%+v", pic)
+	fmt.Println()
+	return
+
 	if id, err := pic.Save(); err != nil || id < 1 {
 		logrus.Error("pic save error:", err)
 	} else {
 		i.PicMap[item.ID] = id
 	}
-	//修改用户统计表---todo
+	//修改用户统计表---todo,并发插入用户表还有问题
 }
 
 //根据图片作者ID获取真实的用户ID
