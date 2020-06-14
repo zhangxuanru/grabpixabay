@@ -15,9 +15,8 @@ import (
 //用户主表
 func TestUserDB(t *testing.T) {
 	user := models.NewUser()
-	user.Uid = 29
+	user.PxUid = 29
 	user.NickName = "zxr"
-	user.PersonAddr = "http://www.baidu.com"
 	user.UserType = 1
 	user.HeadPortrait = "www.13520v.com"
 	user.AddTime = time.Now()
@@ -28,5 +27,6 @@ func TestUserDB(t *testing.T) {
 
 //用户统计表
 func TestUserStatDb(t *testing.T) {
+
 	models.NewUserStat()
 }

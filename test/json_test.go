@@ -10,6 +10,10 @@ import (
 	"fmt"
 	"grabpixabay/core/scheduler"
 	"math/rand"
+	"net/url"
+	"os"
+	"path"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -86,4 +90,22 @@ func Test_Str(t *testing.T) {
 func RandInt(min, max int32) int32 {
 	rand.Seed(time.Now().UnixNano())
 	return min + rand.Int31n(max-min)
+}
+
+func TestUrl(t *testing.T) {
+	//LargeImageURL
+	str := "https://pixabay.com/get/53e2d2444d52ac14f6da8c7dda7936781c3cd6e55b596c4870267add9344cc58b0_1280.jpg"
+	parse, _ := url.Parse(str)
+
+	ext := filepath.Ext(str)
+	fmt.Printf(ext)
+	fmt.Println()
+	fmt.Println("-----------")
+	s := path.Ext(str)
+	fmt.Println(s)
+	filepath.Walk("../docs/", func(path string, info os.FileInfo, err error) error {
+		fmt.Println(path, "---", err)
+		return nil
+	})
+	fmt.Printf("%+v", parse)
 }
