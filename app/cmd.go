@@ -50,6 +50,7 @@ func Run() {
 	} else {
 		task.CallVideo()
 	}
+	defer concurrent.Wait()
 	//item.Monitor()
 }
 

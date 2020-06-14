@@ -124,7 +124,7 @@ func (i *Task) CallImageQuery(search string) {
 //如果设置了抓取总页数 按总页数抓取图片
 func (i *Task) CallImageTotalPage() {
 	var (
-		apiResp   *ApiImageResp
+		apiResp   *api.ApiImageResp
 		err       error
 		totalPage int //总页
 		reqObj    *api.RequestInfo
@@ -156,7 +156,7 @@ func (i *Task) CallImageTotalPage() {
 //抓取所有图片时，统一的请求方法
 func (i *Task) unifyRequest(reqObj *api.RequestInfo) {
 	var (
-		apiResp   *ApiImageResp
+		apiResp   *api.ApiImageResp
 		totalPage int //总页
 		err       error
 	)
@@ -179,7 +179,7 @@ func (i *Task) unifyRequest(reqObj *api.RequestInfo) {
 }
 
 //分用的分发图片的item
-func (i *Task) distributeImage(reqObj *api.RequestInfo) (apiResp *ApiImageResp, err error) {
+func (i *Task) distributeImage(reqObj *api.RequestInfo) (apiResp *api.ApiImageResp, err error) {
 	var resp []byte
 	if resp, err = reqObj.RequestImage(); err != nil {
 		logrus.Error("RequestImage error:", err)
@@ -189,12 +189,6 @@ func (i *Task) distributeImage(reqObj *api.RequestInfo) (apiResp *ApiImageResp, 
 		logrus.Error("ToApiImageResp error:", err)
 		return nil, err
 	}
-	if len(apiResp.Hits) == 0 {
-		return
-	}
-	i.Pool.AddWgNum(len(apiResp.Hits))
-	for _, image := range apiResp.Hits {
-		i.Pool.SubmitImageItem(image)
-	}
+	i.Pool.DistributeImageItem(apiResp)
 	return apiResp, nil
 }

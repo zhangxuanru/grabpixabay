@@ -9,6 +9,8 @@ package scheduler
 import (
 	"context"
 	"fmt"
+	"grabpixabay/core/api"
+	"grabpixabay/core/storage/services"
 	"sync"
 
 	"github.com/sirupsen/logrus"
@@ -16,12 +18,13 @@ import (
 
 func NewConcurrent(workerCount int, ctx context.Context, can context.CancelFunc) *Concurrent {
 	return &Concurrent{
-		itemImageChan: make(chan ItemImage),
-		itemVideoChan: make(chan *ItemVideo),
+		itemImageChan: make(chan api.ItemImage),
+		itemVideoChan: make(chan *api.ItemVideo),
 		workerCount:   workerCount,
 		Ctx:           ctx,
 		Can:           can,
 		Wg:            &sync.WaitGroup{},
+		ImageService:  services.NewImageService(),
 	}
 }
 
@@ -42,9 +45,10 @@ func (c *Concurrent) createWorker(i int) {
 		for {
 			select {
 			case image := <-c.itemImageChan:
-				logrus.Infof("go worker run itemImage %d\n", i)
-				newStorage().SaveImages(image)
-				c.Wg.Done()
+				c.ImageService.Storage(image)
+				c.Done()
+			case video := <-c.itemVideoChan:
+				logrus.Printf("video %+v\n\n", video)
 			case <-c.Ctx.Done():
 				fmt.Println("Worker", i, "终止请求.....")
 				return
@@ -53,7 +57,19 @@ func (c *Concurrent) createWorker(i int) {
 	}()
 }
 
-func (c *Concurrent) SubmitImageItem(item ItemImage) {
+//分发图片item
+func (c *Concurrent) DistributeImageItem(resp *api.ApiImageResp) {
+	if len(resp.Hits) == 0 {
+		return
+	}
+	c.AddWgNum(len(resp.Hits))
+	for _, image := range resp.Hits {
+		c.SubmitImageItem(image)
+	}
+}
+
+//发送图片源信息
+func (c *Concurrent) SubmitImageItem(item api.ItemImage) {
 	c.itemImageChan <- item
 }
 
@@ -63,4 +79,8 @@ func (c *Concurrent) Wait() {
 
 func (c *Concurrent) AddWgNum(n int) {
 	c.Wg.Add(n)
+}
+
+func (c *Concurrent) Done() {
+	c.Wg.Done()
 }

@@ -21,7 +21,6 @@ func (i *Task) CallImage() {
 	// 如果没设置总页数，则拼凑各种查询条件再抓取更多的图片
 	//【因为一个查询最多只返回500条数据，尽可能多的抓取就先暂时拼凑各种查询条件】
 	i.CallImageAll()
-	defer i.Pool.Wait()
 	return
 }
 

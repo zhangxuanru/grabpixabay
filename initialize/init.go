@@ -79,8 +79,16 @@ func Log() {
 		rotatelogs.WithRotationTime(24*time.Hour), // 日志切割时间间隔
 	)
 
+	debug := "./logs/debug.log"
+	writerDebug, _ := rotatelogs.New(
+		debug+".%Y%m%d",
+		rotatelogs.WithLinkName(debug),            // 生成软链，指向最新日志文件
+		rotatelogs.WithMaxAge(5*24*time.Hour),     // 文件最大保存时间
+		rotatelogs.WithRotationTime(24*time.Hour), // 日志切割时间间隔
+	)
+
 	lfHook := lfshook.NewHook(lfshook.WriterMap{
-		logrus.DebugLevel: writerInfo, // 为不同级别设置不同的输出目的
+		logrus.DebugLevel: writerDebug, // 为不同级别设置不同的输出目的
 		logrus.InfoLevel:  writerInfo,
 		logrus.WarnLevel:  writer,
 		logrus.ErrorLevel: writer,
