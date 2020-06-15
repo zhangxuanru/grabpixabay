@@ -1,0 +1,165 @@
+/*
+@Time : 2020/6/15 16:49
+@Author : zxr
+@File : imagestorage
+@Software: GoLand
+*/
+package services
+
+import (
+	"bytes"
+	"grabpixabay/core/api"
+	"grabpixabay/core/storage/models"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/sirupsen/logrus"
+)
+
+//保存所有信息
+func (i *ImageService) SaveAll(item api.ItemImage) {
+	i.SaveAuthor(item)   //保存作者信息
+	i.SaveUserStat(item) //修改用户统计表
+	i.SavePicture(item)  //保存图片主信息
+	i.SaveTag(item)      //保存tag信息
+	i.SavePicAttr(item)  //保存图片属性
+}
+
+//保存作者信息
+func (i *ImageService) SaveAuthor(item api.ItemImage) (id int) {
+	if id, ok := i.AuthorMap[item.UserID]; ok {
+		logrus.Println("UID ", item.UserID, "已存在")
+		return id
+	}
+	user := &models.User{
+		PxUid:        int64(item.UserID),
+		NickName:     item.User,
+		UserType:     models.UserPx,
+		HeadPortrait: item.UserImageURL,
+		AddTime:      time.Now(),
+		UpdateTime:   time.Now(),
+	}
+	if id, err := user.InsertCheckByUid(); err != nil || id < 1 {
+		logrus.WithFields(logrus.Fields{
+			"method": "SaveAuthor",
+			"data":   *user,
+		}).Debug()
+		logrus.Error("SaveAuthor error:", err)
+	} else {
+		i.AuthorMap[item.UserID] = id
+	}
+	return id
+}
+
+//保存图片主信息
+func (i *ImageService) SavePicture(item api.ItemImage) {
+	if _, ok := i.PicMap[item.ID]; ok {
+		//todo 以后可加 更新数据库的 逻辑
+		logrus.Println("PID ", item.ID, "已存在")
+		return
+	}
+	pic := &models.Picture{}
+	uid := 0
+	if uid = i.GetUidByAuthorId(item.UserID); uid == 0 {
+		uid = i.SaveAuthor(item)
+	}
+	pic.Uid = int64(uid)
+	pic.PxUid = int64(item.UserID)
+	pic.ImageFormat = i.GetImageFormat(item.LargeImageURL)
+	pic.ImageType = i.GetImageType(item.Type)
+	pic.PxImgId = uint(item.ID)
+	pic.ViewNum = uint(item.Views)
+	pic.PageURL = item.PageURL
+	pic.DownloadsNum = uint(item.Downloads)
+	pic.LikeNum = uint(item.Likes)
+	pic.FavoritesNum = uint(item.Favorites)
+	pic.CommentsNum = uint(item.Comments)
+	pic.State = models.StatusDefault
+	pic.AddTime = time.Now()
+	pic.UpdateTime = time.Now()
+	if id, err := pic.Save(); err != nil || id < 1 {
+		logrus.WithFields(logrus.Fields{
+			"method": "SavePicture",
+			"data":   *pic,
+		}).Debug()
+		logrus.Error("SavePicture error:", err)
+	} else {
+		i.PicMap[item.ID] = id
+	}
+}
+
+//修改用户统计表
+func (i *ImageService) SaveUserStat(item api.ItemImage) {
+	uid := 0
+	if uid = i.GetUidByAuthorId(item.UserID); uid == 0 {
+		uid = i.SaveAuthor(item)
+	}
+	stat := &models.UserStat{
+		Uid:          int64(uid),
+		PxUid:        int64(item.UserID),
+		PicNum:       1,
+		ViewNum:      uint(item.Views),
+		DownloadsNum: uint(item.Downloads),
+		LikeNum:      uint(item.Likes),
+		CommentNum:   uint(item.Comments),
+		FollowerNum:  uint(item.Favorites),
+		AddTime:      time.Now(),
+		UpdateTime:   time.Now(),
+	}
+	if _, ok := i.UserStatMap[item.UserID]; !ok {
+		if id := stat.GetIdByUid(uid); id > 0 {
+			i.UserStatMap[item.UserID] = id
+		}
+	}
+	if _, ok := i.UserStatMap[item.UserID]; ok {
+		_, err := stat.UpdateStat()
+		if err != nil {
+			logrus.Error("UpdateStat err:", err)
+		}
+	} else {
+		if id, err := stat.Insert(); err == nil && id > 0 {
+			i.UserStatMap[item.UserID] = id
+		}
+	}
+}
+
+//保存tag信息
+func (i *ImageService) SaveTag(item api.ItemImage) {
+	tags := strings.TrimSpace(item.Tags)
+	if tags == "" {
+		return
+	}
+	var tagIdBuf bytes.Buffer
+	tagList := strings.Split(tags, ",")
+	tagModel := models.NewTag()
+	for _, tag := range tagList {
+		if id, ok := i.TagMap[tag]; ok {
+			tagIdBuf.WriteString(strconv.Itoa(id) + ",")
+			continue
+		}
+		tagModel.TagName = tag
+		tagModel.State = 1
+		tagModel.AddTime = time.Now()
+		tagModel.UpdateTime = time.Now()
+		if id, _ := tagModel.Insert(); id > 0 {
+			i.TagMap[tag] = id
+			tagIdBuf.WriteString(strconv.Itoa(id) + ",")
+		}
+	}
+	//保存图片tag信息
+	picTag := models.NewPictureTag()
+	picTag.PicId = uint(item.ID)
+	picTag.TagId = strings.TrimRight(tagIdBuf.String(), ",")
+	picTag.State = models.StatusDefault
+	picTag.AddTime = time.Now()
+	picTag.UpdateTime = time.Now()
+
+	id, err := picTag.Insert() //todo 明天测试继续
+
+}
+
+//保存图片属性信息
+func (i *ImageService) SavePicAttr(item api.ItemImage) {
+
+}

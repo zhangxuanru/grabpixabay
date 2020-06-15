@@ -39,7 +39,7 @@ func init() {
 	Db.LogMode(true)
 	Db.SetLogger(log.New(os.Stdout, "\r\n", 0))
 	//创建表
-	//initMigrate()
+	initMigrate()
 }
 
 //获取DB对象

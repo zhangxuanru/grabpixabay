@@ -15,7 +15,7 @@ import (
 type PictureTag struct {
 	Id         int       `gorm:"primary_key; AUTO_INCREMENT; comment:'自增ID'" json:"id"`
 	PicId      uint      `gorm:"index:pic_id; not null; comment:'图片ID'" json:"pic_id"`
-	TagId      uint      `gorm:" not null; comment:'标签ID'" json:"tag_id"`
+	TagId      string    `gorm:"type:varchar(50); not null; comment:'标签ID 以,分割'" json:"tag_id"`
 	State      int       `gorm:"type:TINYINT(1); NOT NULL;default:1; comment:'状态 1:状态正常 0:删除'" json:"state"`
 	AddTime    time.Time `gorm:"comment:'添加时间'" json:"add_time"`
 	UpdateTime time.Time `gorm:"comment:'修改时间'" json:"update_time"`
@@ -31,7 +31,7 @@ func (p *PictureTag) Insert() (id int, err error) {
 		return 0, errors.New("PicId is nil")
 	}
 	tmpTag := &PictureTag{}
-	GetDB().Where("pic_id = ? AND tag_id = ?", p.PicId, p.TagId).Select("id").First(tmpTag)
+	GetDB().Where("pic_id =", p.PicId).Select("id").First(tmpTag)
 	if tmpTag.Id > 0 {
 		return tmpTag.Id, nil
 	}
