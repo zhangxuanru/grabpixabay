@@ -42,7 +42,8 @@ func Run() {
 	task := buildTask(command)
 	once.Do(func() {
 		concurrent = scheduler.NewConcurrent(configs.GConf.WorkerCount, task.Ctx, task.Can)
-		concurrent.Run()
+		concurrent.WorkerRun()                                  //运行抓取工作进程
+		concurrent.ImageStorage.Storage(concurrent.ItemEndChan) //运行存储服务
 		task.Pool = concurrent
 	})
 	if command.Type == configs.ImageType {
@@ -50,8 +51,8 @@ func Run() {
 	} else {
 		task.CallVideo()
 	}
+	task.Monitor()
 	defer concurrent.Wait()
-	//item.Monitor()
 }
 
 //构建task

@@ -9,6 +9,7 @@ package scheduler
 import (
 	"context"
 	"fmt"
+	"grabpixabay/configs"
 	"grabpixabay/core/api"
 	"grabpixabay/core/storage/services"
 	"sync"
@@ -20,15 +21,16 @@ func NewConcurrent(workerCount int, ctx context.Context, can context.CancelFunc)
 	return &Concurrent{
 		itemImageChan: make(chan api.ItemImage),
 		itemVideoChan: make(chan *api.ItemVideo),
+		ItemEndChan:   make(chan bool, configs.GConf.ItemQueueMaxLimit),
 		workerCount:   workerCount,
 		Ctx:           ctx,
 		Can:           can,
 		Wg:            &sync.WaitGroup{},
-		ImageService:  services.NewImageService(),
+		ImageStorage:  services.NewImageService(),
 	}
 }
 
-func (c *Concurrent) Run() {
+func (c *Concurrent) WorkerRun() {
 	if c.WorkActive == true {
 		logrus.Infoln("worker 正在运行中.....")
 		return
@@ -45,10 +47,11 @@ func (c *Concurrent) createWorker(i int) {
 		for {
 			select {
 			case image := <-c.itemImageChan:
-				c.ImageService.Storage(image)
-				c.Done()
+				c.ImageStorage.AddQueueItem(image)
 			case video := <-c.itemVideoChan:
 				logrus.Printf("video %+v\n\n", video)
+			case <-c.ItemEndChan: //数据库处理完，这里任务减一
+				c.Done()
 			case <-c.Ctx.Done():
 				fmt.Println("Worker", i, "终止请求.....")
 				return

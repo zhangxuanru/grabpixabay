@@ -32,7 +32,6 @@ type Picture struct {
 }
 
 func NewPicture() *Picture {
-	GetDB().AutoMigrate(&Picture{})
 	return &Picture{}
 }
 

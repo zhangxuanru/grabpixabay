@@ -10,6 +10,10 @@ import (
 	"fmt"
 	"grabpixabay/configs"
 	"grabpixabay/core/api"
+	"os"
+	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 //请求图片API
@@ -49,12 +53,18 @@ func (i *Task) getRequest() *api.RequestInfo {
 
 //监听信号
 func (i *Task) Monitor() {
-	select {
-	case sing := <-i.SignChan:
-		i.Can()
-		fmt.Println("接收到信号:", sing)
-	case <-i.Ctx.Done():
-		fmt.Println("end ctx Done....")
-		return
-	}
+	go func() {
+		select {
+		case sing := <-i.SignChan:
+			logrus.Println("接收到信号:", sing)
+			i.Can()
+			i.Pool.ImageStorage.Close()
+			time.Sleep(5 * time.Second)
+			os.Exit(1)
+			return
+		case <-i.Ctx.Done():
+			fmt.Println("end ctx Done....")
+			return
+		}
+	}()
 }

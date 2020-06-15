@@ -32,5 +32,6 @@ type Concurrent struct {
 	itemImageChan chan api.ItemImage  //图片信息
 	itemVideoChan chan *api.ItemVideo //视频信息
 	Wg            *sync.WaitGroup
-	ImageService  *services.ImageService
+	ItemEndChan   chan bool
+	ImageStorage  *services.ImageService
 }

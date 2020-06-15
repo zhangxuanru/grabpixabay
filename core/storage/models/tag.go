@@ -21,7 +21,6 @@ type Tag struct {
 }
 
 func NewTag() *Tag {
-	GetDB().AutoMigrate(&Tag{})
 	return &Tag{}
 }
 

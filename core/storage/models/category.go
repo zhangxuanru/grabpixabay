@@ -21,7 +21,6 @@ type Category struct {
 }
 
 func NewCategory() *Category {
-	GetDB().AutoMigrate(&Category{})
 	return &Category{}
 }
 

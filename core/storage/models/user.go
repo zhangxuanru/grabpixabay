@@ -27,7 +27,6 @@ type User struct {
 }
 
 func NewUser() *User {
-	GetDB().AutoMigrate(&User{})
 	return &User{}
 }
 

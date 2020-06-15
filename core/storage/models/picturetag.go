@@ -22,7 +22,6 @@ type PictureTag struct {
 }
 
 func NewPictureTag() *PictureTag {
-	GetDB().AutoMigrate(&PictureTag{})
 	return &PictureTag{}
 }
 

@@ -38,9 +38,16 @@ func init() {
 
 	Db.LogMode(true)
 	Db.SetLogger(log.New(os.Stdout, "\r\n", 0))
+	//创建表
+	//initMigrate()
 }
 
 //获取DB对象
 func GetDB() *gorm.DB {
 	return Db
+}
+
+//创建表
+func initMigrate() {
+	GetDB().AutoMigrate(&User{}, &UserStat{}, &Tag{}, &PictureTag{}, &PictureAttr{}, &Picture{}, &Category{})
 }

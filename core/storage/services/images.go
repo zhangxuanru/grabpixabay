@@ -2,40 +2,70 @@ package services
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
+	"grabpixabay/configs"
 	"grabpixabay/core/api"
 	"grabpixabay/core/storage/models"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 //图片服务
 type ImageService struct {
-	AuthorMap map[int]int
-	PicMap    map[int]int
-	UserModel *models.User
-	PicModel  *models.Picture
+	AuthorMap    map[int]int
+	PicMap       map[int]int
+	UserModel    *models.User
+	PicModel     *models.Picture
+	ItemListChan chan api.ItemImage
+	CloseChan    chan bool
 }
 
 func NewImageService() *ImageService {
 	return &ImageService{
-		AuthorMap: make(map[int]int),
-		PicMap:    make(map[int]int),
-		UserModel: models.NewUser(),
-		PicModel:  models.NewPicture(),
+		AuthorMap:    make(map[int]int),
+		PicMap:       make(map[int]int),
+		UserModel:    models.NewUser(),
+		PicModel:     models.NewPicture(),
+		ItemListChan: make(chan api.ItemImage, configs.GConf.ItemQueueMaxLimit),
+		CloseChan:    make(chan bool),
 	}
 }
 
-//存储图片信息
-func (i *ImageService) Storage(item api.ItemImage) {
+//存储图片信息 //todo 这里重写， 用队列的思想来实现存储
+func (i *ImageService) Storage(endChan chan bool) {
+	go func() {
+		for {
+			select {
+			case item := <-i.ItemListChan:
+				fmt.Println("item:", item)
+				endChan <- true
+			//i.SaveAuthor(item)
+			case <-i.CloseChan:
+				goto End
+			}
+		}
+	End:
+		logrus.Println("Storage service close.....")
+		return
+	}()
 
-	i.SaveAuthor(&item)
-
-	i.SavePicture(&item)
+	//i.SavePicture(&item)
 	//fmt.Printf("storage images:%+v\n", item)
 }
 
+//关闭存储服务
+func (i *ImageService) Close() {
+	i.CloseChan <- true
+}
+
+func (i *ImageService) AddQueueItem(item api.ItemImage) {
+	i.ItemListChan <- item
+}
+
 //保存作者信息
-func (i *ImageService) SaveAuthor(item *api.ItemImage) int {
+func (i *ImageService) SaveAuthor(item api.ItemImage) (id int) {
+	fmt.Printf("map: %+v", i.AuthorMap)
+	fmt.Println()
 	if id, ok := i.AuthorMap[item.UserID]; ok {
 		logrus.Println("UID ", item.UserID, "已存在")
 		return id
@@ -47,6 +77,7 @@ func (i *ImageService) SaveAuthor(item *api.ItemImage) int {
 	user.AddTime = time.Now()
 	user.UpdateTime = time.Now()
 	user.HeadPortrait = item.UserImageURL
+
 	if id, err := user.InsertCheckByUid(); err != nil || id < 1 {
 		logrus.WithFields(logrus.Fields{
 			"method": "SaveAuthor",
@@ -55,13 +86,12 @@ func (i *ImageService) SaveAuthor(item *api.ItemImage) int {
 		logrus.Error("SaveAuthor error:", err)
 	} else {
 		i.AuthorMap[item.UserID] = id
-		return id
 	}
-	return 0
+	return id
 }
 
 //保存图片信息
-func (i *ImageService) SavePicture(item *api.ItemImage) {
+func (i *ImageService) SavePicture(item api.ItemImage) {
 	if _, ok := i.PicMap[item.ID]; ok {
 		logrus.Println("PID ", item.ID, "已存在")
 		return
@@ -103,8 +133,7 @@ func (i *ImageService) GetUidByAuthorId(authorId int) int {
 	if id, ok := i.AuthorMap[authorId]; ok {
 		return id
 	}
-	user := models.NewUser()
-	if id := user.GetUidByAuthorId(authorId); id > 0 {
+	if id := models.NewUser().GetUidByAuthorId(authorId); id > 0 {
 		return id
 	}
 	return 0

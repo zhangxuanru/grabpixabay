@@ -24,7 +24,6 @@ type PictureAttr struct {
 }
 
 func NewPictureAttr() *PictureAttr {
-	GetDB().AutoMigrate(&PictureAttr{})
 	return &PictureAttr{}
 }
 

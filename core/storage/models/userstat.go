@@ -22,6 +22,5 @@ type UserStat struct {
 }
 
 func NewUserStat() *UserStat {
-	GetDB().AutoMigrate(&UserStat{})
 	return &UserStat{}
 }
