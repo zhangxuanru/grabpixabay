@@ -126,25 +126,29 @@ func (i *ImageService) SaveUserStat(item api.ItemImage) {
 
 //保存tag信息
 func (i *ImageService) SaveTag(item api.ItemImage) {
+	var tagIdBuf bytes.Buffer
 	tags := strings.TrimSpace(item.Tags)
-	if tags == "" {
+	if _, ok := i.PicTagMap[item.ID]; ok || tags == "" {
+		logrus.Infof("pic_id=%d   TAG已存在", item.ID)
 		return
 	}
-	var tagIdBuf bytes.Buffer
 	tagList := strings.Split(tags, ",")
-	tagModel := models.NewTag()
 	for _, tag := range tagList {
 		if id, ok := i.TagMap[tag]; ok {
 			tagIdBuf.WriteString(strconv.Itoa(id) + ",")
 			continue
 		}
+		tagModel := models.NewTag()
 		tagModel.TagName = tag
-		tagModel.State = 1
+		tagModel.State = models.StatusDefault
 		tagModel.AddTime = time.Now()
 		tagModel.UpdateTime = time.Now()
-		if id, _ := tagModel.Insert(); id > 0 {
-			i.TagMap[tag] = id
+		if id, err := tagModel.Insert(); id > 0 {
+			tmp := tag
+			i.TagMap[tmp] = id
 			tagIdBuf.WriteString(strconv.Itoa(id) + ",")
+		} else {
+			logrus.Error("tagModel.Insert error :", err)
 		}
 	}
 	//保存图片tag信息
@@ -154,9 +158,11 @@ func (i *ImageService) SaveTag(item api.ItemImage) {
 	picTag.State = models.StatusDefault
 	picTag.AddTime = time.Now()
 	picTag.UpdateTime = time.Now()
-
-	id, err := picTag.Insert() //todo 明天测试继续
-
+	if id, err := picTag.Insert(); id > 0 {
+		i.PicTagMap[item.ID] = id
+	} else {
+		logrus.Error("picTag.Insert error :", err)
+	}
 }
 
 //保存图片属性信息

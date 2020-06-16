@@ -31,7 +31,7 @@ func (p *PictureTag) Insert() (id int, err error) {
 		return 0, errors.New("PicId is nil")
 	}
 	tmpTag := &PictureTag{}
-	GetDB().Where("pic_id =", p.PicId).Select("id").First(tmpTag)
+	GetDB().Where("pic_id = ?", p.PicId).Select("id").First(tmpTag)
 	if tmpTag.Id > 0 {
 		return tmpTag.Id, nil
 	}

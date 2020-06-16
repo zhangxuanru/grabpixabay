@@ -10,24 +10,40 @@ import (
 
 //图片服务
 type ImageService struct {
-	AuthorMap    map[int]int
-	PicMap       map[int]int
-	UserStatMap  map[int]int
-	TagMap       map[string]int
-	UserModel    *models.User
-	PicModel     *models.Picture
 	ItemListChan chan api.ItemImage
 	CloseChan    chan bool
+	ServiceModels
+	MapCache
+}
+
+//缓存MAP
+type MapCache struct {
+	AuthorMap   map[int]int
+	PicMap      map[int]int
+	UserStatMap map[int]int
+	TagMap      map[string]int
+	PicTagMap   map[int]int
+}
+
+//需要用到的模型
+type ServiceModels struct {
+	UserModel *models.User
+	PicModel  *models.Picture
 }
 
 func NewImageService() *ImageService {
 	return &ImageService{
-		AuthorMap:    make(map[int]int),
-		PicMap:       make(map[int]int),
-		UserStatMap:  make(map[int]int),
-		TagMap:       make(map[string]int),
-		UserModel:    models.NewUser(),
-		PicModel:     models.NewPicture(),
+		MapCache: MapCache{
+			AuthorMap:   make(map[int]int),
+			PicMap:      make(map[int]int),
+			UserStatMap: make(map[int]int),
+			TagMap:      make(map[string]int),
+			PicTagMap:   make(map[int]int),
+		},
+		ServiceModels: ServiceModels{
+			UserModel: models.NewUser(),
+			PicModel:  models.NewPicture(),
+		},
 		ItemListChan: make(chan api.ItemImage, configs.GConf.ItemQueueMaxLimit),
 		CloseChan:    make(chan bool),
 	}
