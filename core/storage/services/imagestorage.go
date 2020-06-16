@@ -8,6 +8,7 @@ package services
 
 import (
 	"bytes"
+	"fmt"
 	"grabpixabay/core/api"
 	"grabpixabay/core/storage/models"
 	"strconv"
@@ -17,6 +18,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type PicAttr struct {
+	File   string
+	Width  int
+	Height int
+	Size   int
+}
+
 //保存所有信息
 func (i *ImageService) SaveAll(item api.ItemImage) {
 	i.SaveAuthor(item)   //保存作者信息
@@ -24,6 +32,7 @@ func (i *ImageService) SaveAll(item api.ItemImage) {
 	i.SavePicture(item)  //保存图片主信息
 	i.SaveTag(item)      //保存tag信息
 	i.SavePicAttr(item)  //保存图片属性
+	i.SavePicApi(item)   //保存返回的API信息
 }
 
 //保存作者信息
@@ -167,5 +176,61 @@ func (i *ImageService) SaveTag(item api.ItemImage) {
 
 //保存图片属性信息
 func (i *ImageService) SavePicAttr(item api.ItemImage) {
+	list := []*PicAttr{
+		{
+			File:   item.PreviewURL,
+			Width:  item.PreviewWidth,
+			Height: item.PreviewHeight,
+			Size:   0,
+		},
+		{
+			File:   item.LargeImageURL,
+			Width:  960,
+			Height: 1280,
+			Size:   0,
+		},
+		{
+			File:   "",
+			Width:  486,
+			Height: 340,
+			Size:   0,
+		},
+		{
+			File:   "",
+			Width:  686,
+			Height: 480,
+			Size:   0,
+		},
+		{
+			File:   "",
+			Width:  960,
+			Height: 720,
+			Size:   0,
+		},
+	}
 
+	fmt.Println("list:", list)
+	//qiNiu := &QiNiu{
+	//	SrcFile: item.LargeImageURL,
+	//}
+	//putRet, err := qiNiu.UploadFile()
+}
+
+//保存API信息
+func (i *ImageService) SavePicApi(item api.ItemImage) {
+	if _, ok := i.ApiMap[item.ID]; ok {
+		return
+	}
+	apiData, err := i.Json.Marshal(item)
+	if err != nil {
+		return
+	}
+	picApi := &models.PicApi{
+		PxImgId: uint(item.ID),
+		Api:     string(apiData),
+		AddTime: time.Now(),
+	}
+	if id, _ := picApi.Save(); id > 0 {
+		i.ApiMap[item.ID] = struct{}{}
+	}
 }

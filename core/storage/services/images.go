@@ -1,6 +1,7 @@
 package services
 
 import (
+	jsoniter "github.com/json-iterator/go"
 	"grabpixabay/configs"
 	"grabpixabay/core/api"
 	"grabpixabay/core/storage/models"
@@ -12,6 +13,7 @@ import (
 type ImageService struct {
 	ItemListChan chan api.ItemImage
 	CloseChan    chan bool
+	Json         jsoniter.API
 	ServiceModels
 	MapCache
 }
@@ -23,6 +25,7 @@ type MapCache struct {
 	UserStatMap map[int]int
 	TagMap      map[string]int
 	PicTagMap   map[int]int
+	ApiMap      map[int]struct{}
 }
 
 //需要用到的模型
@@ -39,17 +42,19 @@ func NewImageService() *ImageService {
 			UserStatMap: make(map[int]int),
 			TagMap:      make(map[string]int),
 			PicTagMap:   make(map[int]int),
+			ApiMap:      make(map[int]struct{}),
 		},
 		ServiceModels: ServiceModels{
 			UserModel: models.NewUser(),
 			PicModel:  models.NewPicture(),
 		},
+		Json:         jsoniter.ConfigCompatibleWithStandardLibrary,
 		ItemListChan: make(chan api.ItemImage, configs.GConf.ItemQueueMaxLimit),
 		CloseChan:    make(chan bool),
 	}
 }
 
-//存储图片信息 //todo 这里重写， 用队列的思想来实现存储
+//存储图片信息
 func (i *ImageService) Storage(endChan chan bool) {
 	go func() {
 		for {

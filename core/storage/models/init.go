@@ -49,5 +49,5 @@ func GetDB() *gorm.DB {
 
 //创建表
 func initMigrate() {
-	GetDB().AutoMigrate(&User{}, &UserStat{}, &Tag{}, &PictureTag{}, &PictureAttr{}, &Picture{}, &Category{})
+	GetDB().AutoMigrate(&User{}, &UserStat{}, &Tag{}, &PictureTag{}, &PictureAttr{}, &Picture{}, &Category{}, &PicApi{})
 }
