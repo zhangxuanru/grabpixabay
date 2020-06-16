@@ -15,7 +15,7 @@ import (
 type PicApi struct {
 	Id      int       `gorm:"primary_key; AUTO_INCREMENT; comment:'自增ID'" json:"id"`
 	PxImgId uint      `gorm:"unique; not null; comment:'px站的图片ID'" json:"px_img_id"`
-	Api     string    `gorm:"type:varchar(255); not null; comment:'API数据'" json:"api"`
+	Api     string    `gorm:"type:text; not null; comment:'API数据'" json:"api"`
 	AddTime time.Time `gorm:"comment:'添加时间'" json:"add_time"`
 }
 

@@ -42,15 +42,15 @@ func (u *UserStat) UpdateStat() (affected int64, err error) {
 		"comment_num":   gorm.Expr("comment_num + ?", u.CommentNum),
 		"follower_num":  gorm.Expr("follower_num + ?", u.FollowerNum),
 	}
+	if u.Uid == 0 && u.Id == 0 {
+		return 0, errors.New("where  params is nil")
+	}
 	updates := GetDB().Model(&UserStat{}).Updates(buildMap).Omit("add_time")
 	if u.Uid > 0 {
 		updates.Where("uid = ?", u.Uid)
 	}
 	if u.Id > 0 {
 		updates.Where("id = ?", u.Id)
-	}
-	if u.Uid == 0 && u.Id == 0 {
-		return 0, errors.New("where  params is nil")
 	}
 	return updates.RowsAffected, updates.Error
 }

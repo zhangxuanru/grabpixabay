@@ -8,11 +8,11 @@ package services
 
 import (
 	"bytes"
-	"fmt"
 	"grabpixabay/core/api"
 	"grabpixabay/core/storage/models"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -27,12 +27,12 @@ type PicAttr struct {
 
 //保存所有信息
 func (i *ImageService) SaveAll(item api.ItemImage) {
-	i.SaveAuthor(item)   //保存作者信息
-	i.SaveUserStat(item) //修改用户统计表
-	i.SavePicture(item)  //保存图片主信息
-	i.SaveTag(item)      //保存tag信息
-	i.SavePicAttr(item)  //保存图片属性
-	i.SavePicApi(item)   //保存返回的API信息
+	//	i.SaveAuthor(item)   //保存作者信息
+	//	i.SaveUserStat(item) //修改用户统计表
+	//	i.SavePicture(item)  //保存图片主信息
+	//	i.SaveTag(item)      //保存tag信息
+	i.SavePicAttr(item) //保存图片属性
+	i.SavePicApi(item)  //保存返回的API信息
 }
 
 //保存作者信息
@@ -174,8 +174,9 @@ func (i *ImageService) SaveTag(item api.ItemImage) {
 	}
 }
 
-//保存图片属性信息
+//保存图片属性信息 todo 明天继续
 func (i *ImageService) SavePicAttr(item api.ItemImage) {
+	wg := &sync.WaitGroup{}
 	list := []*PicAttr{
 		{
 			File:   item.PreviewURL,
@@ -208,12 +209,63 @@ func (i *ImageService) SavePicAttr(item api.ItemImage) {
 			Size:   0,
 		},
 	}
-
-	fmt.Println("list:", list)
-	//qiNiu := &QiNiu{
-	//	SrcFile: item.LargeImageURL,
-	//}
-	//putRet, err := qiNiu.UploadFile()
+	wg.Add(len(list))
+	for _, attr := range list {
+		if attr.File == "" {
+			wg.Done()
+			continue
+		}
+		go func(attr *PicAttr) {
+			defer wg.Done()
+			pictureAttr := &models.PictureAttr{
+				PicId: uint(item.ID),
+				Width: attr.Width,
+			}
+			pic := pictureAttr.GetIdByPicId()
+			if pic != nil && pic.IsQiniu == 1 {
+				return
+			}
+			tmp := attr
+			qiNiu := &QiNiu{
+				SrcFile: tmp.File,
+			}
+			ret, err := qiNiu.UploadFile()
+			if err != nil {
+				log := &models.PictureAttrLog{
+					PicId:    uint(item.ID),
+					ImageURL: attr.File,
+					ErrMsg:   err.Error(),
+					AddTime:  time.Now(),
+				}
+				_, _ = log.Insert()
+			}
+			isUpload := 0
+			if ret.PutRet != nil && ret.PutRet.Key != "" {
+				isUpload = 1
+			}
+			pictureAttr = &models.PictureAttr{
+				PicId:    uint(item.ID),
+				ImageURL: attr.File,
+				Width:    attr.Width,
+				Height:   attr.Height,
+				FileName: ret.FileName,
+				IsQiniu:  isUpload,
+				State:    models.StatusDefault,
+				AddTime:  time.Now(),
+			}
+			if pic.Id == 0 {
+				if _, err := pictureAttr.Insert(); err != nil {
+					logrus.Error("pictureAttr.Insert error:", err)
+				}
+				return
+			}
+			if pic.Id > 0 && isUpload == 1 {
+				pictureAttr.Id = pic.Id
+				_, _ = pictureAttr.EditUpload(isUpload)
+			}
+		}(attr)
+	}
+	wg.Wait()
 }
 
 //保存API信息

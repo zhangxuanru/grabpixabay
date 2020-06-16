@@ -9,9 +9,11 @@ import (
 	"github.com/qiniu/api.v7/storage"
 	"grabpixabay/configs"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"path"
 	"strings"
+	"time"
 )
 
 type QiNiu struct {
@@ -21,6 +23,12 @@ type QiNiu struct {
 	UpFileName string
 }
 
+type UploadResult struct {
+	Size     int64
+	FileName string
+	PutRet   *storage.PutRet
+}
+
 const DefaultUa = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"
 
 func NewQiNiu() *QiNiu {
@@ -28,7 +36,15 @@ func NewQiNiu() *QiNiu {
 }
 
 //上传文件
-func (q *QiNiu) UploadFile() (putRet *storage.PutRet, err error) {
+func (q *QiNiu) UploadFile() (ret *UploadResult, err error) {
+	ret = &UploadResult{}
+	if q.UpFileName == "" {
+		q.UpFileName = q.GenDefaultFileName()
+		ret.FileName = q.UpFileName
+	}
+	if q.SrcFile == "" {
+		return ret, errors.New("srcFile is nil")
+	}
 	putPolicy := storage.PutPolicy{
 		Scope: configs.QINIU_BKT + ":" + q.UpFileName,
 	}
@@ -40,20 +56,19 @@ func (q *QiNiu) UploadFile() (putRet *storage.PutRet, err error) {
 	// 是否使用https域名
 	cfg.UseHTTPS = false
 	// 上传是否使用CDN上传加速
-	cfg.UseCdnDomains = false
+	cfg.UseCdnDomains = true
 	// 构建表单上传的对象
 	formUploader := storage.NewFormUploader(&cfg)
-	putRet = &storage.PutRet{}
+	putRet := &storage.PutRet{}
 	putExtra := storage.PutExtra{}
-	if q.UpFileName == "" {
-		q.UpFileName = q.GenDefaultFileName()
-	}
+
 	if strings.Contains(q.SrcFile, "http") {
 		var data []byte
 		if data, err = q.DownloadFile(); err != nil {
 			return
 		}
 		dataLen := int64(len(data))
+		ret.Size = dataLen
 		err = formUploader.Put(context.Background(), putRet, upToken, q.UpFileName, bytes.NewReader(data), dataLen, &putExtra)
 	} else {
 		err = formUploader.PutFile(context.Background(), putRet, upToken, q.UpFileName, q.SrcFile, &putExtra)
@@ -61,7 +76,8 @@ func (q *QiNiu) UploadFile() (putRet *storage.PutRet, err error) {
 	if err != nil {
 		return
 	}
-	return putRet, nil
+	ret.PutRet = putRet
+	return ret, nil
 }
 
 //从URL中取文件名
@@ -76,6 +92,10 @@ func (q *QiNiu) DownloadFile() (bytes []byte, err error) {
 		request  *http.Request
 		response *http.Response
 	)
+	//如果不存在就不请求具体内容了
+	//if exists, err := q.HeadExists(); err != nil || exists == false {
+	//	return nil, err
+	//}
 	if request, err = http.NewRequest(http.MethodGet, q.SrcFile, nil); err != nil {
 		return nil, err
 	}
@@ -86,7 +106,7 @@ func (q *QiNiu) DownloadFile() (bytes []byte, err error) {
 		request.Header.Set("referer", q.Referer)
 	}
 	request.Header.Set("User-Agent", q.UA)
-	if response, err = http.DefaultClient.Do(request); err != nil {
+	if response, err = q.NewClient().Do(request); err != nil {
 		return nil, err
 	}
 	defer response.Body.Close()
@@ -113,7 +133,7 @@ func (q *QiNiu) HeadExists() (exists bool, err error) {
 		request.Header.Set("referer", q.Referer)
 	}
 	request.Header.Set("User-Agent", q.UA)
-	if response, err = http.DefaultClient.Do(request); err != nil {
+	if response, err = q.NewClient().Do(request); err != nil {
 		return false, err
 	}
 	defer response.Body.Close()
@@ -121,4 +141,19 @@ func (q *QiNiu) HeadExists() (exists bool, err error) {
 		return false, errors.New(fmt.Sprintf("http code is:%d", response.StatusCode))
 	}
 	return true, nil
+}
+
+func (q *QiNiu) NewClient() *http.Client {
+	c := &http.Client{
+		Transport: &http.Transport{
+			Dial: (&net.Dialer{
+				Timeout:   30 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}).Dial,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ResponseHeaderTimeout: 10 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
+		},
+	}
+	return c
 }
