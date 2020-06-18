@@ -22,8 +22,10 @@ type User struct {
 	Passwd       string    `gorm:"index:user_pass; type:char(32);     comment:'登录密码'" json:"passwd"`                    //用户密码
 	UserType     int       `gorm:"type:TINYINT(1); NOT NULL;default:1; comment:'用户类型 1:本站注册 2:px站抓取'" json:"user_type"` //用户类型 1,本站注册， 2：px站抓取
 	HeadPortrait string    `gorm:"type:varchar(100); NOT NULL;comment:'头像地址'" json:"head_portrait"`                     //头像地址
-	AddTime      time.Time `gorm:"comment:'添加时间'" json:"add_time"`                                                      //创建时间
-	UpdateTime   time.Time `gorm:"comment:'修改时间'" json:"update_time"`                                                   //修改后自动更新时间
+	FileName     string    `gorm:"type:varchar(255); NOT NULL; comment:'图片名称'" json:"file_name"`
+	IsQiniu      int       `gorm:"type:TINYINT(1); NOT NULL;default:0; comment:'是否上传七牛 1:已上传 0:未上传'" json:"is_qiniu"`
+	AddTime      time.Time `gorm:"comment:'添加时间'" json:"add_time"`    //创建时间
+	UpdateTime   time.Time `gorm:"comment:'修改时间'" json:"update_time"` //修改后自动更新时间
 }
 
 func NewUser() *User {

@@ -33,6 +33,8 @@ func (i *ImageService) SaveAll(item api.ItemImage) {
 	i.SaveTag(item)      //保存tag信息
 	i.SavePicApi(item)   //保存返回的API信息
 	i.DownloadPic(item)  //下载图片保存图片属性
+
+	i.SaveEs(item) //保存到ES中，
 }
 
 //保存作者信息
@@ -41,11 +43,30 @@ func (i *ImageService) SaveAuthor(item api.ItemImage) (id int) {
 		logrus.Println("UID ", item.UserID, "已存在")
 		return id
 	}
+	qiNiu := &QiNiu{
+		SrcFile: item.UserImageURL,
+	}
+	ret, err := qiNiu.UploadFile()
+	if err != nil {
+		log := &models.PictureAttrLog{
+			PicId:    uint(item.ID),
+			ImageURL: qiNiu.SrcFile,
+			ErrMsg:   err.Error(),
+			AddTime:  time.Now(),
+		}
+		_, _ = log.Insert()
+	}
+	isUpload := 0
+	if ret != nil && ret.PutRet != nil && ret.PutRet.Key != "" {
+		isUpload = 1
+	}
 	user := &models.User{
 		PxUid:        int64(item.UserID),
 		NickName:     item.User,
 		UserType:     models.UserPx,
 		HeadPortrait: item.UserImageURL,
+		FileName:     ret.FileName,
+		IsQiniu:      isUpload,
 		AddTime:      time.Now(),
 		UpdateTime:   time.Now(),
 	}
