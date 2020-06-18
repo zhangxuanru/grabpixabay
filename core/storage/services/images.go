@@ -25,6 +25,7 @@ type MapCache struct {
 	UserStatMap map[int]int
 	TagMap      map[string]int
 	PicTagMap   map[int]int
+	CategoryMap map[string]int
 	ApiMap      map[int]struct{}
 }
 
@@ -42,6 +43,7 @@ func NewImageService() *ImageService {
 			UserStatMap: make(map[int]int),
 			TagMap:      make(map[string]int),
 			PicTagMap:   make(map[int]int),
+			CategoryMap: make(map[string]int),
 			ApiMap:      make(map[int]struct{}),
 		},
 		ServiceModels: ServiceModels{

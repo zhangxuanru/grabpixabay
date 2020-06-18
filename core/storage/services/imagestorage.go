@@ -34,7 +34,7 @@ func (i *ImageService) SaveAll(item api.ItemImage) {
 	i.SavePicApi(item)   //保存返回的API信息
 	i.DownloadPic(item)  //下载图片保存图片属性
 
-	i.SaveEs(item) //保存到ES中，
+	//i.SaveEs(item) //保存到ES中，
 }
 
 //保存作者信息
@@ -93,6 +93,24 @@ func (i *ImageService) SavePicture(item api.ItemImage) {
 	uid := 0
 	if uid = i.GetUidByAuthorId(item.UserID); uid == 0 {
 		uid = i.SaveAuthor(item)
+	}
+	if item.EditorsChoice == true {
+		pic.IsHandpick = 1
+	}
+	if item.Orientation != "" {
+		pic.ImageDirection = i.GetDirection(item.Orientation)
+	}
+	if item.Color != "" {
+		pic.ThemeColor = item.Color
+	}
+	if item.Category != "" {
+		if catId, ok := i.CategoryMap[item.Category]; !ok {
+			catId = models.NewCategory().GetIdByCateName(item.Category)
+			i.CategoryMap[item.Category] = catId
+			pic.CategoryId = uint(catId)
+		} else {
+			pic.CategoryId = uint(catId)
+		}
 	}
 	pic.Uid = int64(uid)
 	pic.PxUid = int64(item.UserID)

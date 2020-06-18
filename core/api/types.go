@@ -59,6 +59,7 @@ type ItemImage struct {
 	ImageSize       int    `json:"imageSize"`
 	ItemImageStat
 	ItemAuthor
+	ItemReqParams
 }
 
 //作者信息
@@ -74,6 +75,13 @@ type ItemImageStat struct {
 	Favorites int `json:"favorites"`
 	Likes     int `json:"likes"`
 	Comments  int `json:"comments"`
+}
+
+type ItemReqParams struct {
+	Color         string `json:"req_color"`
+	EditorsChoice bool   `json:"req_editors_choice"`
+	Category      string `json:"req_category"`
+	Orientation   string `json:"req_orientation"`
 }
 
 //视频信息 item

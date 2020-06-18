@@ -10,10 +10,7 @@ import (
 	"fmt"
 	"grabpixabay/core/scheduler"
 	"math/rand"
-	"net/url"
-	"os"
-	"path"
-	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -92,20 +89,13 @@ func RandInt(min, max int32) int32 {
 	return min + rand.Int31n(max-min)
 }
 
-func TestUrl(t *testing.T) {
-	//LargeImageURL
-	str := "https://pixabay.com/get/53e2d2444d52ac14f6da8c7dda7936781c3cd6e55b596c4870267add9344cc58b0_1280.jpg"
-	parse, _ := url.Parse(str)
+func TestPic(t *testing.T) {
+	privUrl := "https://cdn.pixabay.com/photo/2020/06/14/08/00/landscape-5296910_150.jpg"
+	onePicSrc := strings.Replace(privUrl, "_150.", "__340.", 1)
+	twoPicSrc := strings.Replace(privUrl, "_150.", "__480.", 1)
+	threePicSrc := strings.Replace(privUrl, "_150.", "_960_720.", 1)
 
-	ext := filepath.Ext(str)
-	fmt.Printf(ext)
-	fmt.Println()
-	fmt.Println("-----------")
-	s := path.Ext(str)
-	fmt.Println(s)
-	filepath.Walk("../docs/", func(path string, info os.FileInfo, err error) error {
-		fmt.Println(path, "---", err)
-		return nil
-	})
-	fmt.Printf("%+v", parse)
+	fmt.Println(onePicSrc)
+	fmt.Println(twoPicSrc)
+	fmt.Println(threePicSrc)
 }

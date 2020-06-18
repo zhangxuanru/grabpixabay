@@ -189,6 +189,6 @@ func (i *Task) distributeImage(reqObj *api.RequestInfo) (apiResp *api.ApiImageRe
 		logrus.Error("ToApiImageResp error:", err)
 		return nil, err
 	}
-	i.Pool.DistributeImageItem(apiResp)
+	i.Pool.DistributeImageItem(apiResp, reqObj)
 	return apiResp, nil
 }

@@ -40,3 +40,14 @@ func (i *ImageService) GetUidByAuthorId(authorId int) int {
 	}
 	return 0
 }
+
+//获取图像方向
+func (i *ImageService) GetDirection(direction string) int {
+	if direction == "horizontal" {
+		return 2
+	}
+	if direction == "vertical" {
+		return 3
+	}
+	return 1
+}

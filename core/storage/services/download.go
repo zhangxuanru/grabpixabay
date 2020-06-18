@@ -4,6 +4,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"grabpixabay/core/api"
 	"grabpixabay/core/storage/models"
+	"strings"
 	"sync"
 	"time"
 )
@@ -12,6 +13,9 @@ import (
 func (i *ImageService) DownloadPic(item api.ItemImage) {
 	wg := &sync.WaitGroup{}
 	list := i.picAttrList(item)
+	if len(list) == 0 {
+		return
+	}
 	wg.Add(len(list))
 	for _, attr := range list {
 		attrCopy := attr
@@ -56,6 +60,7 @@ func (i *ImageService) SaveDbAttr(attr *PicAttr) {
 	if ret.PutRet != nil && ret.PutRet.Key != "" {
 		isUpload = 1
 	}
+	logrus.Println("保存图片信息 PIC Id =:", attr.PicId)
 	pictureAttr = &models.PictureAttr{
 		PicId:    uint(attr.PicId),
 		ImageURL: attr.File,
@@ -80,6 +85,12 @@ func (i *ImageService) SaveDbAttr(attr *PicAttr) {
 
 //要下载的图片列表
 func (i *ImageService) picAttrList(item api.ItemImage) (list []*PicAttr) {
+	if item.PreviewURL == "" {
+		return
+	}
+	onePicSrc := strings.Replace(item.PreviewURL, "_150.", "__340.", 1)
+	twoPicSrc := strings.Replace(item.PreviewURL, "_150.", "__480.", 1)
+	threePicSrc := strings.Replace(item.PreviewURL, "_150.", "_960_720.", 1)
 	list = []*PicAttr{
 		{
 			File:   item.PreviewURL,
@@ -96,21 +107,21 @@ func (i *ImageService) picAttrList(item api.ItemImage) (list []*PicAttr) {
 			Size:   0,
 		},
 		{
-			File:   "",
+			File:   onePicSrc,
 			PicId:  item.ID,
 			Width:  486,
 			Height: 340,
 			Size:   0,
 		},
 		{
-			File:   "",
+			File:   twoPicSrc,
 			PicId:  item.ID,
 			Width:  686,
 			Height: 480,
 			Size:   0,
 		},
 		{
-			File:   "",
+			File:   threePicSrc,
 			PicId:  item.ID,
 			Width:  960,
 			Height: 720,

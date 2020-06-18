@@ -52,3 +52,15 @@ func (u *User) GetUidByAuthorId(authorId int) int {
 	}
 	return 0
 }
+
+func (u *User) GetList() (users []User) {
+	GetDB().Select("id,head_portrait,is_qiniu").Find(&users)
+	return
+}
+
+func (u *User) UpdateUpload() {
+	if u.Id == 0 {
+		return
+	}
+	GetDB().Model(u).Updates(User{FileName: u.FileName, IsQiniu: 1}).Where("id =?", u.Id)
+}

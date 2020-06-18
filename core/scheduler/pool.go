@@ -61,12 +61,13 @@ func (c *Concurrent) createWorker(i int) {
 }
 
 //分发图片item
-func (c *Concurrent) DistributeImageItem(resp *api.ApiImageResp) {
+func (c *Concurrent) DistributeImageItem(resp *api.ApiImageResp, reqObj *api.RequestInfo) {
 	if len(resp.Hits) == 0 {
 		return
 	}
 	c.AddWgNum(len(resp.Hits))
 	for _, image := range resp.Hits {
+		image = buildReqParams(image, reqObj)
 		c.SubmitImageItem(image)
 	}
 }
