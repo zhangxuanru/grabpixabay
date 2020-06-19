@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"grabpixabay/core/api"
 	"grabpixabay/core/storage/models"
+	"grabpixabay/core/storage/services/es"
 	"strconv"
 	"strings"
 	"time"
@@ -33,8 +34,7 @@ func (i *ImageService) SaveAll(item api.ItemImage) {
 	i.SaveTag(item)      //保存tag信息
 	i.SavePicApi(item)   //保存返回的API信息
 	i.DownloadPic(item)  //下载图片保存图片属性
-
-	//i.SaveEs(item) //保存到ES中，
+	es.SavePicInfo(item) //保存到ES中
 }
 
 //保存作者信息

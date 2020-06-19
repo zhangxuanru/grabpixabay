@@ -9,7 +9,7 @@ package scheduler
 import (
 	"context"
 	"grabpixabay/core/api"
-	"grabpixabay/core/storage/services"
+	"grabpixabay/core/storage/services/images"
 	"grabpixabay/initialize"
 	"os"
 	"sync"

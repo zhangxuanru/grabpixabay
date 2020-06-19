@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"grabpixabay/configs"
 	"grabpixabay/core/api"
-	"grabpixabay/core/storage/services"
+	"grabpixabay/core/storage/services/images"
 	"sync"
 
 	"github.com/sirupsen/logrus"

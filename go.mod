@@ -18,6 +18,7 @@ require (
 	github.com/lib/pq v1.7.0 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
+	github.com/olivere/elastic/v7 v7.0.17
 	github.com/pkg/errors v0.9.1
 	github.com/qiniu/api.v7 v7.2.5+incompatible
 	github.com/qiniu/x v7.0.8+incompatible // indirect
