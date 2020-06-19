@@ -32,9 +32,9 @@ func (i *ImageService) SaveAll(item api.ItemImage) {
 	i.SaveUserStat(item) //修改用户统计表
 	i.SavePicture(item)  //保存图片主信息
 	i.SaveTag(item)      //保存tag信息
-	i.SavePicApi(item)   //保存返回的API信息
 	i.DownloadPic(item)  //下载图片保存图片属性
 	go func() {
+		i.SavePicApi(item)   //保存返回的API信息
 		es.SavePicInfo(item) //保存到ES中
 	}()
 }
