@@ -2,7 +2,7 @@ package es
 
 import (
 	"context"
-	"fmt"
+	"github.com/sirupsen/logrus"
 	"grabpixabay/configs"
 	"grabpixabay/core/api"
 	"time"
@@ -21,10 +21,14 @@ type ImageIndexData struct {
 	AddDate    int64  `json:"add_date"`
 }
 
+//保存图片信息到ES中
 func SavePicInfo(item api.ItemImage) {
 	isHandpick := 0
 	if item.EditorsChoice == true {
 		isHandpick = 1
+	}
+	if item.ID == 0 || item.UserID == 0 {
+		return
 	}
 	data := ImageIndexData{
 		PicId:      item.ID,
@@ -38,10 +42,11 @@ func SavePicInfo(item api.ItemImage) {
 		IsHandpick: isHandpick,
 		AddDate:    time.Now().Unix(),
 	}
-	response, e := client.Index().
+	_, e := client.Index().
 		Index(configs.ES_INDEX).
 		BodyJson(data).
 		Do(context.Background())
-	fmt.Println("err:", e)
-	fmt.Println("resp:", response)
+	if e != nil {
+		logrus.Error("SavePicInfo error :", e)
+	}
 }
