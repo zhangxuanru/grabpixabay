@@ -20,13 +20,14 @@ type ImageService struct {
 
 //缓存MAP
 type MapCache struct {
-	AuthorMap   map[int]int
-	PicMap      map[int]int
-	UserStatMap map[int]int
-	TagMap      map[string]int
-	PicTagMap   map[int]int
-	CategoryMap map[string]int
-	ApiMap      map[int]struct{}
+	AuthorMap    map[int]int
+	PicMap       map[int]int
+	UserStatMap  map[int]int
+	TagMap       map[string]int
+	PicTagMap    map[int]int
+	CategoryMap  map[string]int
+	ApiMap       map[int]struct{}
+	InsertPicMap map[int]struct{}
 }
 
 //需要用到的模型
@@ -38,13 +39,14 @@ type ServiceModels struct {
 func NewImageService() *ImageService {
 	return &ImageService{
 		MapCache: MapCache{
-			AuthorMap:   make(map[int]int),
-			PicMap:      make(map[int]int),
-			UserStatMap: make(map[int]int),
-			TagMap:      make(map[string]int),
-			PicTagMap:   make(map[int]int),
-			CategoryMap: make(map[string]int),
-			ApiMap:      make(map[int]struct{}),
+			AuthorMap:    make(map[int]int),
+			PicMap:       make(map[int]int),
+			UserStatMap:  make(map[int]int),
+			TagMap:       make(map[string]int),
+			PicTagMap:    make(map[int]int),
+			CategoryMap:  make(map[string]int),
+			ApiMap:       make(map[int]struct{}),
+			InsertPicMap: make(map[int]struct{}),
 		},
 		ServiceModels: ServiceModels{
 			UserModel: models.NewUser(),

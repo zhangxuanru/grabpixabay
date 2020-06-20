@@ -41,7 +41,7 @@ func (u *UserStat) UpdateStat() (affected int64, err error) {
 		"comment_num":   gorm.Expr("comment_num + ?", u.CommentNum),
 		"follower_num":  gorm.Expr("follower_num + ?", u.FollowerNum),
 	}
-	updates := GetDB().Model(&UserStat{}).Updates(buildMap).Omit("add_time").Where("px_uid = ?", u.PxUid)
+	updates := GetDB().Model(u).Where("px_uid = ?", u.PxUid).Updates(buildMap).Omit("add_time")
 	return updates.RowsAffected, updates.Error
 }
 

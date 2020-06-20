@@ -35,12 +35,12 @@ func NewPicture() *Picture {
 	return &Picture{}
 }
 
-func (p *Picture) Save() (id int, err error) {
+func (p *Picture) Save() (id int, isCreate bool, err error) {
 	pic := &Picture{}
 	GetDB().Where("px_img_id = ?", p.PxImgId).Select("id").First(pic)
 	if pic.Id > 0 {
-		return pic.Id, nil
+		return pic.Id, false, nil
 	}
 	create := GetDB().Create(p)
-	return p.Id, create.Error
+	return p.Id, true, create.Error
 }

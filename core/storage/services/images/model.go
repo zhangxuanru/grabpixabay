@@ -34,7 +34,9 @@ func (i *ImageService) SaveAll(item api.ItemImage) {
 	i.SaveTag(item)      //保存tag信息
 	i.DownloadPic(item)  //下载图片保存图片属性
 	i.SavePicApi(item)   //保存返回的API信息
-	es.SavePicInfo(item) //保存到ES中
+	if _, ok := i.InsertPicMap[item.ID]; ok {
+		es.SavePicInfo(item) //保存到ES中
+	}
 }
 
 //保存作者信息
@@ -126,7 +128,7 @@ func (i *ImageService) SavePicture(item api.ItemImage) {
 	pic.State = models.StatusDefault
 	pic.AddTime = time.Now()
 	pic.UpdateTime = time.Now()
-	if id, err := pic.Save(); err != nil || id < 1 {
+	if id, isCreate, err := pic.Save(); err != nil || id < 1 {
 		logrus.WithFields(logrus.Fields{
 			"method": "SavePicture",
 			"data":   *pic,
@@ -134,6 +136,9 @@ func (i *ImageService) SavePicture(item api.ItemImage) {
 		logrus.Error("SavePicture error:", err)
 	} else {
 		i.PicMap[item.ID] = id
+		if isCreate == true {
+			i.InsertPicMap[item.ID] = struct{}{}
+		}
 	}
 }
 
