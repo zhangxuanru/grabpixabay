@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	jsoniter "github.com/json-iterator/go"
 	"grabpixabay/configs"
 	"grabpixabay/core/api"
@@ -13,6 +14,8 @@ import (
 type ImageService struct {
 	ItemListChan chan api.ItemImage
 	CloseChan    chan bool
+	Ctx          context.Context
+	Can          context.CancelFunc
 	Json         jsoniter.API
 	ServiceModels
 	MapCache
@@ -37,6 +40,7 @@ type ServiceModels struct {
 }
 
 func NewImageService() *ImageService {
+	ctx, cancel := context.WithCancel(context.TODO())
 	return &ImageService{
 		MapCache: MapCache{
 			AuthorMap:    make(map[int]int),
@@ -55,6 +59,15 @@ func NewImageService() *ImageService {
 		Json:         jsoniter.ConfigCompatibleWithStandardLibrary,
 		ItemListChan: make(chan api.ItemImage, configs.GConf.ItemQueueMaxLimit),
 		CloseChan:    make(chan bool),
+		Ctx:          ctx,
+		Can:          cancel,
+	}
+}
+
+//运行多个gorouting 来保存数据
+func (i *ImageService) RunStorage(endChan chan bool) {
+	for j := 0; j < 5; j++ {
+		i.Storage(endChan)
 	}
 }
 
@@ -67,6 +80,9 @@ func (i *ImageService) Storage(endChan chan bool) {
 				i.SaveAll(item)
 				endChan <- true
 			case <-i.CloseChan:
+				i.Can()
+				goto End
+			case <-i.Ctx.Done():
 				goto End
 			}
 		}
