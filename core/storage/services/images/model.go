@@ -138,6 +138,7 @@ func (i *ImageService) SavePicture(item api.ItemImage) {
 		i.PicMap[item.ID] = id
 		if isCreate == true {
 			i.InsertPicMap[item.ID] = struct{}{}
+			logrus.Println(item.ID, "插入数据库成功，已成功插入", len(i.InsertPicMap), "条数据")
 		}
 	}
 }
