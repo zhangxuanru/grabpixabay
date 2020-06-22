@@ -3,10 +3,10 @@
 
 设置抓取参数
 
-![image](https://github.com/zhangxuanru/grabpixabay/blob/master/readme/1.png)
+![image](http://static.images.13520v.com/pixabay1.png)
 
 运行过程日志
 
-  ![image](https://github.com/zhangxuanru/grabpixabay/blob/master/readme/2.png)
+  ![image](http://static.images.13520v.com/pixabay2.png)
 
-  ![image](https://github.com/zhangxuanru/grabpixabay/blob/master/readme/7.png)
+  ![image](http://static.images.13520v.com/pixabay7.png)
