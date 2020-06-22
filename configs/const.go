@@ -23,5 +23,5 @@ const (
 )
 
 const (
-	ApiKey = "16938088-79a55b5fdde346d72a038a2e1"
+	ApiKey = "hello world"
 )
