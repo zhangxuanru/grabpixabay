@@ -22,6 +22,31 @@ const (
 	OrderLatest  = "latest"
 )
 
+
+//七牛配置
 const (
-	ApiKey = "hello world"
+	QINIU_BKT = "--"
+	QINIU_AK  = "--"
+	QINIU_SK  = "--"
+)
+
+
+//数据库配置
+const (
+	DbHost     = "--"
+	DbUser     = "--"
+	DbPassWd   = "--"
+	DbPort     = 
+	DbDataBase = "--"
+)
+
+//ES配置
+const (
+	ES_HOST  = "http"
+	ES_INDEX = "--"
+)
+
+
+const (
+	ApiKey = "hello -- world"
 )
