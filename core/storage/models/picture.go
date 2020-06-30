@@ -44,3 +44,8 @@ func (p *Picture) Save() (id int, isCreate bool, err error) {
 	create := GetDB().Create(p)
 	return p.Id, true, create.Error
 }
+
+func (p *Picture) GetList() (list []Picture) {
+	GetDB().Select("px_img_id").Find(&list)
+	return
+}

@@ -35,3 +35,10 @@ func (p *PicApi) Save() (id int, err error) {
 	create := GetDB().Create(p)
 	return p.Id, create.Error
 }
+
+//根据图片ID获取API
+func (p *PicApi) GetApiById(pxId int) (api *PicApi) {
+	api = &PicApi{}
+	GetDB().Where("px_img_id = ?", pxId).Select("id, api").First(api)
+	return api
+}

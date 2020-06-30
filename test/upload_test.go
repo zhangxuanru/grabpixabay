@@ -1,9 +1,8 @@
-package test
+package bak
 
 import (
 	"fmt"
 	"grabpixabay/core/storage/models"
-	"grabpixabay/core/storage/services"
 	"testing"
 )
 
@@ -13,6 +12,7 @@ func TestUploadUserHead(t *testing.T) {
 		if user.IsQiniu == 1 {
 			continue
 		}
+
 		niu := services.QiNiu{
 			SrcFile: user.HeadPortrait,
 		}

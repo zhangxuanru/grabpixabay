@@ -4,11 +4,11 @@
 @File : go_test
 @Software: GoLand
 */
-package test
+package bak
 
 import (
 	"fmt"
-	"grabpixabay/core/storage/services"
+
 	"net/http"
 	"testing"
 )
@@ -32,6 +32,7 @@ func Test_Go(t *testing.T) {
 func TestUrlFile(t *testing.T) {
 	url := "https://cdn.pixabay.com/photo/2020/06/06/14/36/ice-5266805__340.jpg"
 	qiniu := &services.QiNiu{SrcFile: url}
+	services.NewQiNiu()
 
 	ret, e := qiniu.UploadFile()
 

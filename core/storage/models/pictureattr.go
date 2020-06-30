@@ -39,6 +39,6 @@ func (p *PictureAttr) EditUpload(upload int) (affected int64, err error) {
 
 func (p *PictureAttr) GetIdByPicId() (pic *PictureAttr) {
 	pic = &PictureAttr{}
-	GetDB().Where("pic_id = ? AND width = ?", p.PicId, p.Width).Select("id,is_qiniu").First(pic)
+	GetDB().Where("pic_id = ? AND width = ? AND height = ?", p.PicId, p.Width, p.Height).Select("id,is_qiniu").First(pic)
 	return pic
 }

@@ -4,15 +4,16 @@
 @File : db_test
 @Software: GoLand
 */
-package test
+package bak
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"grabpixabay/configs"
 	"grabpixabay/core/storage/models"
 	"testing"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 //用户主表

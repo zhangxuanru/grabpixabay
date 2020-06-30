@@ -1,12 +1,13 @@
 package services
 
 import (
-	"github.com/sirupsen/logrus"
 	"grabpixabay/core/api"
 	"grabpixabay/core/storage/models"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 //下载图片
@@ -33,8 +34,9 @@ func (i *ImageService) DownloadPic(item api.ItemImage) {
 //保存图片属性到表中
 func (i *ImageService) SaveDbAttr(attr *PicAttr) {
 	pictureAttr := &models.PictureAttr{
-		PicId: uint(attr.PicId),
-		Width: attr.Width,
+		PicId:  uint(attr.PicId),
+		Width:  attr.Width,
+		Height: attr.Height,
 	}
 	pic := pictureAttr.GetIdByPicId()
 	if pic != nil && pic.IsQiniu == 1 {
