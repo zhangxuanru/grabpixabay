@@ -5,15 +5,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/qiniu/api.v7/auth/qbox"
-	"github.com/qiniu/api.v7/storage"
 	"grabpixabay/configs"
 	"io/ioutil"
+	"math/rand"
 	"net"
 	"net/http"
+	"net/url"
 	"path"
 	"strings"
 	"time"
+
+	"github.com/qiniu/api.v7/auth/qbox"
+	"github.com/qiniu/api.v7/storage"
 )
 
 type QiNiu struct {
@@ -82,6 +85,24 @@ func (q *QiNiu) UploadFile() (ret *UploadResult, err error) {
 
 //从URL中取文件名
 func (q *QiNiu) GenDefaultFileName() string {
+	if strings.Contains(q.SrcFile, "http") {
+		var buff bytes.Buffer
+		r, _ := url.Parse(q.SrcFile)
+		filePath := strings.ReplaceAll(r.Path, "/", "")
+		pathLen := len(filePath)
+		if pathLen < 25 {
+			return filePath
+		}
+		randSource := "0123456789abcdefghijklmnopqrstuvwxyz"
+		sourceLen := len(randSource) - 1
+		rand.Seed(time.Now().UnixNano())
+		n1 := rand.Intn(sourceLen)
+		n2 := rand.Intn(sourceLen)
+		buff.WriteByte(randSource[n1])
+		buff.WriteByte(randSource[n2])
+		fileName := buff.String() + filePath[pathLen-25:]
+		return fileName
+	}
 	fileName := path.Base(q.SrcFile)
 	return fileName
 }
