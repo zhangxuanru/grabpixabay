@@ -3,9 +3,10 @@ package es
 import (
 	"context"
 	"fmt"
+	"grabpixabay/configs"
+
 	"github.com/olivere/elastic/v7"
 	"github.com/sirupsen/logrus"
-	"grabpixabay/configs"
 )
 
 var client *elastic.Client
@@ -14,7 +15,12 @@ var host = configs.ES_HOST
 func init() {
 	log := logrus.New()
 	var err error
-	client, err = elastic.NewClient(elastic.SetSniff(false), elastic.SetErrorLog(log), elastic.SetURL(host))
+	client, err = elastic.NewClient(
+		elastic.SetSniff(false),
+		elastic.SetErrorLog(log),
+		elastic.SetURL(host),
+		elastic.SetBasicAuth(configs.ESUSER, configs.ESPASSWORD),
+	)
 	if err != nil {
 		logrus.Error("elastic.NewClient err:", err)
 		panic(err)
