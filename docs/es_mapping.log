@@ -1,0 +1,79 @@
+{
+    "mappings":{
+        "dynamic":true,
+        "properties":{
+            "pic_id":{
+                "type":"long"
+            },
+            "user_id":{
+                "type":"long"
+            },
+            "category_id":{
+                "type":"integer"
+            },
+            "image_type":{
+                "type":"keyword"
+            },
+            "pic_color":{
+                "type":"keyword"
+            },
+            "direction":{
+                "type":"keyword"
+            },
+            "category":{
+                "type":"keyword"
+            },
+            "tags":{
+                "type":"text"
+            },
+            "is_handpick":{
+                "type":"short"
+            },
+            "add_date":{
+                "type":"long"
+            }
+        }
+    }
+}
+
+
+-------------
+{
+  "mappings": {
+    "dynamic": "true",
+    "properties": {
+      "add_date": {
+        "type": "long"
+      },
+      "category": {
+        "type": "keyword"
+      },
+      "category_id": {
+        "type": "integer"
+      },
+      "direction": {
+        "type": "keyword"
+      },
+      "image_type": {
+        "type": "keyword"
+      },
+      "is_handpick": {
+        "type": "short"
+      },
+      "pic_color": {
+        "type": "keyword"
+      },
+      "pic_id": {
+        "type": "long"
+      },
+      "tags": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_max_word"
+      },
+      "user_id": {
+        "type": "long"
+      }
+    }
+  }
+}

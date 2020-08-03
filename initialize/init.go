@@ -45,8 +45,8 @@ func Flag() *CommandLine {
 		"color values: grayscale, transparent, red, orange, yellow, green, turquoise, blue, lilac, pink, white, gray, black, brown")
 	flag.StringVar(&command.ImgType, "img", configs.All, "按图像类型抓取 Accepted values: all, photo, illustration, vector")
 	flag.StringVar(&command.VideoType, "video", configs.All, "按视频类型抓取 Accepted values: all, film, animation")
-	flag.IntVar(&command.CountPage, "count", 1, "请输入要抓取的总页数，默认是全部抓取")
-	flag.IntVar(&command.Size, "size", 5, "请输入每页抓取的数量，默认100条")
+	flag.IntVar(&command.CountPage, "count", 0, "请输入要抓取的总页数，默认是全部抓取")
+	flag.IntVar(&command.Size, "size", 10, "请输入每页抓取的数量，默认100条")
 	flag.Parse()
 	return command
 }
