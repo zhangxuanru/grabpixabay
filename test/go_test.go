@@ -4,10 +4,11 @@
 @File : go_test
 @Software: GoLand
 */
-package bak
+package test
 
 import (
 	"fmt"
+	services "grabpixabay/core/storage/services/images"
 
 	"net/http"
 	"testing"

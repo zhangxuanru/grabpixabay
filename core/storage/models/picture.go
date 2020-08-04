@@ -45,7 +45,13 @@ func (p *Picture) Save() (id int, isCreate bool, err error) {
 	return p.Id, true, create.Error
 }
 
+//更新分类ID
+func (p *Picture) EditCategoryId(PxImgId int, categoryId int) (affected int64, err error) {
+	update := GetDB().Model(&Picture{}).Where("px_img_id = ?", PxImgId).Update("category_id", categoryId)
+	return update.RowsAffected, update.Error
+}
+
 func (p *Picture) GetList() (list []Picture) {
-	GetDB().Select("px_img_id").Find(&list)
+	GetDB().Select("id,px_img_id").Find(&list)
 	return
 }

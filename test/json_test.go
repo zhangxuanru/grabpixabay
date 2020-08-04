@@ -4,7 +4,7 @@
 @File : test_json
 @Software: GoLand
 */
-package bak
+package test
 
 import (
 	"fmt"

@@ -4,7 +4,7 @@
 @File : db_test
 @Software: GoLand
 */
-package bak
+package test
 
 import (
 	"fmt"

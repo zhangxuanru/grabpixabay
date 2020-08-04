@@ -2,10 +2,12 @@ package es
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
 	"grabpixabay/configs"
 	"grabpixabay/core/api"
+	"strconv"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 type ImageIndexData struct {
@@ -42,11 +44,21 @@ func SavePicInfo(item api.ItemImage) {
 		IsHandpick: isHandpick,
 		AddDate:    time.Now().Unix(),
 	}
+	esId := strconv.Itoa(item.ID)
 	_, e := client.Index().
 		Index(configs.ES_INDEX).
 		BodyJson(data).
+		Id(esId).
 		Do(context.Background())
 	if e != nil {
 		logrus.Error("SavePicInfo error :", e)
 	}
 }
+
+//func EditEsPhoto(picId int) {
+//	q := elastic.NewTermQuery("pic_id", picId)
+//	//q := elastic.NewQueryStringQuery("pic_id:5183312")
+//	res, err := client.DeleteByQuery().Index(configs.ES_INDEX).Query(q).Do(context.Background())
+//	fmt.Printf("res:%+v", res)
+//	fmt.Println("err:", err)
+//}
