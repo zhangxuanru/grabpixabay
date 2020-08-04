@@ -18,10 +18,7 @@ import (
 
 //拼凑各种查询条件，抓取所有图片
 func (i *Task) CallImageAll() {
-	i.callImageCmdDefault()
 	if i.Command.More == true {
-		i.callImageEditors()
-		i.callImageOrientation()
 		i.callImageCategory()
 		if i.Command.Order == configs.OrderPopular {
 			i.callImageOrderLast()
@@ -35,6 +32,10 @@ func (i *Task) CallImageAll() {
 		if i.Command.ImgType == configs.All {
 			i.callImageType()
 		}
+		i.callImageEditors()
+		i.callImageOrientation()
+	} else {
+		i.callImageCmdDefault()
 	}
 }
 
