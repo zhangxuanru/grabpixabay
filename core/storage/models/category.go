@@ -41,7 +41,7 @@ func (c *Category) Insert() (id int, err error) {
 //获取分类ID
 func (c *Category) GetIdByCateName(cateName string) int {
 	tmpCategory := &Category{}
-	GetDB().Where("category_name = ?", c.CategoryName).Select("id").First(tmpCategory)
+	GetDB().Where("category_name = ?", cateName).Select("id").First(tmpCategory)
 	if tmpCategory.Id > 0 {
 		return tmpCategory.Id
 	}
