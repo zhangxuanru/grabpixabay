@@ -36,6 +36,8 @@ func init() {
 	Db.SingularTable(true)
 	Db.DB().SetMaxIdleConns(10)
 	Db.DB().SetMaxOpenConns(100)
+	Db.DB().SetConnMaxLifetime(time.Hour * 4)
+
 	path := fmt.Sprintf("./logs/sql-%d-%d-%d.log", time.Now().Year(), time.Now().Month(), time.Now().Day())
 	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_RDWR, os.ModePerm)
 	if err == nil {
